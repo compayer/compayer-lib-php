@@ -4,7 +4,7 @@ class PaysuperAnalyticsLib
 {
 	public static $version = '1.0.0';
 
-	private static $testUrl = 'http://localhost/push';
+	private static $testUrl = 'https://analytics.tst.protocol.one/push';
 
 	private static $prodUrl = 'https://analytics.protocol.one/push';
 
