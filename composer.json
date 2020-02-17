@@ -1,0 +1,18 @@
+{
+  "name": "paysuper/analytics-lib-php",
+  "description": "Library for push stat message to Paysuper Analytics from php-bases projects",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/paysuper/paysuper-analytics-lib-php"
+    }
+  ],
+  "authors": [
+    {
+      "name": "Evgeniy Strigo",
+      "email": "evgeniy.strigo@protocol.one"
+    }
+  ]
+}
