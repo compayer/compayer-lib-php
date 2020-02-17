@@ -1,14 +1,14 @@
 <?php
 
+require_once(__DIR__ . '/vendor/autoload.php');
+
 class PaysuperAnalyticsLib
 {
 	public static $version = '1.0.0';
 
-	private static $testUrl = 'https://analytics.tst.protocol.one/push';
+	private static $testUrl = 'http://localhost/push';
 
 	private static $prodUrl = 'https://analytics.protocol.one/push';
-
-	private static $timeout = 1;
 
 	public static function Push($bIsProd = false, $dataSource = '', $event = '', $data = array())
 	{
@@ -20,7 +20,16 @@ class PaysuperAnalyticsLib
 				$transactionId = $_COOKIE['psa_tid'];
 			} else
 			{
-				$transactionId = self::get_guid();
+				try
+				{
+					$uuid4 = Ramsey\Uuid\Uuid::uuid4();
+					$transactionId = $uuid4->toString();
+				} catch (Ramsey\Uuid\Exception\UnsatisfiedDependencyException $e)
+				{
+					// Some dependency was not met. Either the method cannot be called on a
+					// 32-bit system, or it can, but it relies on Moontoast\Math to be present.
+					error_log('Caught exception: ' . $e->getMessage());
+				}
 
 				if ($event == 'success' || $event == 'fail')
 				{
@@ -96,8 +105,6 @@ class PaysuperAnalyticsLib
 
 		$dataJson = json_encode($message);
 
-		print_r($dataJson);
-
 		$url = $bIsProd ? self::$prodUrl : self::$testUrl;
 
 		self::send($url, $dataJson);
@@ -157,70 +164,27 @@ class PaysuperAnalyticsLib
 		return '';
 	}
 
-	// Get an RFC-4122 compliant globaly unique identifier
-	private static function get_guid()
-	{
-		$data = PHP_MAJOR_VERSION < 7 ? openssl_random_pseudo_bytes(16) : random_bytes(16);
-		$data[6] = chr(ord($data[6]) & 0x0f | 0x40);    // Set version to 0100
-		$data[8] = chr(ord($data[8]) & 0x3f | 0x80);    // Set bits 6-7 to 10
-		return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-	}
-
 	private static function send($url = '', $data = '')
 	{
-		if (!function_exists('curl_init'))
+		try
 		{
-			error_log('curl_init function not exists');
-			return;
-		}
+			$headers = [
+				'Content-Length' => mb_strlen($data),
+				'Referer' => $_SERVER['HTTP_REFERER'],
+				'Content-Type' => 'application/json',
+				'User-Agent' => "ps-analytics-lib-php-" . self::$version,
+			];
 
-		$curl = @curl_init();
+			$request = new GuzzleHttp\Psr7\Request('POST', $url, $headers, $data);
 
-		// Предотвращаем chunked-ответ
-		curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
-		curl_setopt($curl, CURLOPT_HEADER, TRUE);
-
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_POST, TRUE);
-
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-
-		$dataLen = mb_strlen($data);
-		$aHeaders = array();
-		$aHeaders[] = "Content-Length: " . $dataLen;
-		$aHeaders[] = "Referer: " . $_SERVER['HTTP_REFERER'];
-		$aHeaders[] = "Content-Type: application/json";
-
-		curl_setopt($curl, CURLOPT_HTTPHEADER, $aHeaders);
-
-		curl_setopt($curl, CURLOPT_TIMEOUT, self::$timeout);
-		curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, self::$timeout);
-		curl_setopt($curl, CURLOPT_USERAGENT, "ps-analytics-lib-php-" . self::$version);
-		curl_setopt($curl, CURLOPT_REFERER, $_SERVER['HTTP_REFERER']);
-
-		curl_setopt($curl, CURLOPT_VERBOSE, FALSE); // Minimize logs
-		//curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE); // No certificate
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE); // Return in string
-
-		// Close connection
-		//curl_setopt($curl, CURLOPT_FORBID_REUSE, TRUE);
-
-		// TLS 1.2
-		//curl_setopt($curl, CURLOPT_SSLVERSION, 6);
-
-		// Get the target contents
-		@curl_exec($curl);
-
-		$_errno = curl_errno($curl);
-		$_error = curl_error($curl);
-
-		// Close PHP cURL handle
-		@curl_close($curl);
-
-		if ($_errno)
+			$client = new GuzzleHttp\Client([
+				'verify' => false,
+			]);
+			$promise = $client->sendAsync($request);
+			GuzzleHttp\Promise\unwrap([$promise]);
+		} catch (Throwable $e)
 		{
-			error_log('Analytics collector push error: ' . $_errno . ' ' . $_error);
+			error_log('Analytics collector push error: ' . $e->getMessage());
 		}
 	}
 }

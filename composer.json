@@ -14,5 +14,10 @@
       "name": "Evgeniy Strigo",
       "email": "evgeniy.strigo@protocol.one"
     }
-  ]
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "6.5.2",
+    "ext-json": "*",
+    "ramsey/uuid": "3.9.2"
+  }
 }
