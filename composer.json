@@ -6,7 +6,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/paysuper/paysuper-analytics-lib-php"
+      "url": "https://github.com/paysuper/paysuper-analytics-lib-php.git"
     }
   ],
   "authors": [
