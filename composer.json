@@ -1,5 +1,5 @@
 {
-  "name": "paysuper/analytics-lib-php",
+  "name": "paysuper/paysuper-analytics-lib-php",
   "description": "Library for push stat message to Paysuper Analytics from php-bases projects",
   "minimum-stability": "stable",
   "license": "proprietary",
