@@ -5,7 +5,7 @@
   "license": "proprietary",
   "repositories": [
     {
-      "type": "git",
+      "type": "vcs",
       "url": "https://github.com/paysuper/paysuper-analytics-lib-php.git"
     }
   ],
