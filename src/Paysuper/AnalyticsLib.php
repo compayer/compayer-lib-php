@@ -17,7 +17,23 @@ class AnalyticsLib
 
 	private static $prodUrl = 'https://analytics.protocol.one/push';
 
-	public static function Push($bIsProd = false, $dataSource = '', $event = '', $data = array())
+    /**
+     * payment order was created
+     */
+	const EVENT_START = 'start';
+
+    /**
+     * payment was successfully completed
+     */
+    const EVENT_SUCCESS = 'success';
+
+    /**
+     * payment was failed
+     */
+    const EVENT_FAIL = 'fail';
+
+
+    public static function Push($bIsProd = false, $dataSource = '', $event = '', $data = array())
 	{
 		$transactionId = self::getValue($data, 'transactionId', '');
 		if (empty($transactionId))
