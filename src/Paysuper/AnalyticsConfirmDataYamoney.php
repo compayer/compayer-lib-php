@@ -2,6 +2,8 @@
 
 namespace Paysuper;
 
+use stdClass;
+
 class AnalyticsConfirmDataYamoney
 {
 
