@@ -18,6 +18,10 @@
   "require": {
     "guzzlehttp/guzzle": "6.5.2",
     "ext-json": "*",
-    "ramsey/uuid": "3.9.2"
+    "ramsey/uuid": "3.9.2",
+    "ext-mbstring": "*"
+  },
+  "autoload": {
+    "psr-4": {"Paysuper\\": "src/Paysuper"}
   }
 }

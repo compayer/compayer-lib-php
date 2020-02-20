@@ -5,8 +5,8 @@ Library for push stat message to Paysuper Analytics from php-bases projects.
 Example to use:
 
 ```php
-require_once('PaysuperAnalyticsLib.php');
-require_once('PaysuperAnalyticsConformDataYamoney.php');
+require_once('AnalyticsLib.php');
+require_once('AnalyticsConfirmDataYamoney.php');
 
 $event = 'start'; // 'start', 'success', 'fail'
 
@@ -44,18 +44,18 @@ if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE'))
 	define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
 }
 
-PaysuperAnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
 ```
 
 Example to use with helper
 
 ```php
-require_once('PaysuperAnalyticsLib.php');
-require_once('PaysuperAnalyticsConformDataYamoney.php');
+require_once('AnalyticsLib.php');
+require_once('AnalyticsConfirmDataYamoney.php');
 
 $request = array(); //  response from payment system 
 
-$data = PaysuperAnalyticsConformDataYamoney::GetData($request);
+$data = AnalyticsConfirmDataYamoney::GetData($request);
 if (!is_null($data))
 {
 	$data['userAccounts']->yourproject = "131312323213132410";
@@ -71,6 +71,6 @@ if (!is_null($data))
 
 	$event = 'start'; // 'start', 'success', 'fail'
 
-	PaysuperAnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
 }
 ```

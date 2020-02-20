@@ -1,6 +1,8 @@
 <?php
 
-class PaysuperAnalyticsConformDataYamoney
+namespace Paysuper;
+
+class AnalyticsConfirmDataYamoney
 {
 
 	public static $paymentMethods = array(

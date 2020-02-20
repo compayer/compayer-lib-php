@@ -1,8 +1,14 @@
 <?php
 
-require_once(__DIR__ . '/vendor/autoload.php');
+namespace Paysuper;
 
-class PaysuperAnalyticsLib
+use Exception;
+use Ramsey\Uuid\Uuid;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise\unwrap;
+
+class AnalyticsLib
 {
 	public static $version = '1.0.0';
 
@@ -22,12 +28,10 @@ class PaysuperAnalyticsLib
 			{
 				try
 				{
-					$uuid4 = Ramsey\Uuid\Uuid::uuid4();
+					$uuid4 = Uuid::uuid4();
 					$transactionId = $uuid4->toString();
-				} catch (Ramsey\Uuid\Exception\UnsatisfiedDependencyException $e)
+				} catch (Exception $e)
 				{
-					// Some dependency was not met. Either the method cannot be called on a
-					// 32-bit system, or it can, but it relies on Moontoast\Math to be present.
 					error_log('Caught exception: ' . $e->getMessage());
 				}
 
@@ -166,8 +170,9 @@ class PaysuperAnalyticsLib
 
 	private static function send($url = '', $data = '')
 	{
-		try
-		{
+        $client = new Client(['verify' => false]);
+
+		try {
 			$headers = [
 				'Content-Length' => mb_strlen($data),
 				'Referer' => $_SERVER['HTTP_REFERER'],
@@ -175,15 +180,9 @@ class PaysuperAnalyticsLib
 				'User-Agent' => "ps-analytics-lib-php-" . self::$version,
 			];
 
-			$request = new GuzzleHttp\Psr7\Request('POST', $url, $headers, $data);
-
-			$client = new GuzzleHttp\Client([
-				'verify' => false,
-			]);
-			$promise = $client->sendAsync($request);
-			GuzzleHttp\Promise\unwrap([$promise]);
-		} catch (Throwable $e)
-		{
+			$request = new Request('POST', $url, $headers, $data);
+			$client->sendAsync($request);
+		} catch (Throwable $e) {
 			error_log('Analytics collector push error: ' . $e->getMessage());
 		}
 	}
