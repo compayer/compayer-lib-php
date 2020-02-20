@@ -5,10 +5,7 @@ Library for push stat message to Paysuper Analytics from php-bases projects.
 Example to use:
 
 ```php
-require_once('AnalyticsLib.php');
-require_once('AnalyticsConfirmDataYamoney.php');
-
-$event = 'start'; // 'start', 'success', 'fail'
+use Paysuper\AnalyticsLib;
 
 $accounts = new stdClass();
 $accounts->yourproject = "131312323213132410";
@@ -35,42 +32,37 @@ $data = array(
 	"merchantTransactionId" => "some id",
 );
 
-if (!defined('PAYSUPER_ANALYTICS_IS_PROD'))
-{
+if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
 	define('PAYSUPER_ANALYTICS_IS_PROD', true);
 }
-if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE'))
-{
+
+if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
 	define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
 }
 
-AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, AnalyticsLib::EVENT_START, $data);
 ```
 
 Example to use with helper
 
 ```php
-require_once('AnalyticsLib.php');
-require_once('AnalyticsConfirmDataYamoney.php');
+use Paysuper\AnalyticsConfirmDataYamoney;
+use Paysuper\AnalyticsLib;
 
 $request = array(); //  response from payment system 
-
 $data = AnalyticsConfirmDataYamoney::GetData($request);
-if (!is_null($data))
-{
+
+if (null === $data) {
 	$data['userAccounts']->yourproject = "131312323213132410";
 
-	if (!defined('PAYSUPER_ANALYTICS_IS_PROD'))
-	{
+	if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
 		define('PAYSUPER_ANALYTICS_IS_PROD', true);
 	}
-	if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE'))
-	{
+	
+    if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
 		define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
 	}
 
-	$event = 'start'; // 'start', 'success', 'fail'
-
-	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, AnalyticsLib::EVENT_START, $data);
 }
 ```
