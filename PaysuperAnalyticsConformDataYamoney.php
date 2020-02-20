@@ -35,22 +35,30 @@ class PaysuperAnalyticsConformDataYamoney
 		$paymentMethod = self::$paymentMethods[$request['paymentType']];
 
 		$cardPanMask = '';
-		$paymentSubMethod = "";
+		$paymentSubMethod = self::$paymentSubMethods[$request['paymentType']];
 		if ($request['paymentType'] === "AC")
 		{
-			if (empty($request['cdd_pan_mask']))
+			if (!empty($request['cdd_pan_mask']))
 			{
-				return null;
+				$cardPanMask = $request['cdd_pan_mask'];
 			}
-
-			$cardPanMask = $request['cdd_pan_mask'];
-		} else
-		{
-			$paymentSubMethod = self::$paymentSubMethods[$request['paymentType']];
 		}
 
-		$paymentAmount = $request['orderSumAmount'] * 1;
-		$paymentCost = ($request['orderSumAmount'] * 1 - $request['shopSumAmount'] * 1);
+		$paymentAmount = 0;
+		if (isset($request['orderSumAmount'])) {
+			$paymentAmount = $request['orderSumAmount'] * 1;
+		} elseif(isset($request['sum'])) {
+			$paymentAmount = $request['sum'] * 1;
+		}
+
+		$netAmount = 0;
+		if (isset($request['shopSumAmount'])) {
+			$netAmount = $request['shopSumAmount'] * 1;
+		} elseif(isset($request['netSum'])) {
+			$netAmount = $request['netSum'] * 1;
+		}
+
+		$paymentCost = $paymentAmount - $netAmount;
 
 		$userLang = '';
 		if (!empty($request['lang']))
@@ -90,12 +98,13 @@ class PaysuperAnalyticsConformDataYamoney
 			"payoutCurrency" => "RUB",
 			"payoutExchangeRate" => 1,
 			"userLang" => $userLang,
-			"userPhones" => array_filter(array($request['phone'], $request['phoneNumber'], $request['yandexPhoneNumber'])),
-			"userEmails" => array_filter(array($request['email'])),
+			"userPhones" => array_filter(array($request['cps_phone'], $request['phone'], $request['phoneNumber'], $request['yandexPhoneNumber'])),
+			"userEmails" => array_filter(array($request['cps_email'], $request['email'])),
 			"userAccounts" => $accounts,
 			"userCountry" => $request['cps_user_country_code'],
 			"merchantTransactionId" => $request['unilabel'],
 			"customerNumber" => $request['customerNumber'],
+			"orderNumber" => $request['orderNumber'],
 			"cardPanMask" => $cardPanMask,
 		);
 	}
