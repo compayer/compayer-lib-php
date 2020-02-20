@@ -7,6 +7,7 @@ use Ramsey\Uuid\Uuid;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\unwrap;
+use stdClass;
 
 class AnalyticsLib
 {
