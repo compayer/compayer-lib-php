@@ -4,7 +4,7 @@ namespace Paysuper;
 
 use stdClass;
 
-class AnalyticsConfirmDataYamoney
+class AnalyticsConformDataYamoney
 {
 
 	public static $paymentMethods = array(

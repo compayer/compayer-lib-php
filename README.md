@@ -48,11 +48,11 @@ AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $
 Example to use with helper
 
 ```php
-use Paysuper\AnalyticsConfirmDataYamoney;
+use Paysuper\AnalyticsConformDataYamoney;
 use Paysuper\AnalyticsLib;
 
 $request = array(); //  response from payment system 
-$data = AnalyticsConfirmDataYamoney::GetData($request);
+$data = AnalyticsConformDataYamoney::GetData($request);
 
 if ($data !== null) {
 	$data['userAccounts']->yourproject = "131312323213132410";
