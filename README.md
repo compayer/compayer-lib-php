@@ -40,7 +40,9 @@ if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
 	define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
 }
 
-AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, AnalyticsLib::EVENT_START, $data);
+$event = AnalyticsLib::EVENT_START; // use correct event name here
+
+AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
 ```
 
 Example to use with helper
