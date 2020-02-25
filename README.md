@@ -52,7 +52,7 @@ use Paysuper\AnalyticsLib;
 $request = array(); //  response from payment system 
 $data = AnalyticsConfirmDataYamoney::GetData($request);
 
-if (null === $data) {
+if ($data !== null) {
 	$data['userAccounts']->yourproject = "131312323213132410";
 
 	if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
@@ -63,6 +63,8 @@ if (null === $data) {
 		define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
 	}
 
-	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, AnalyticsLib::EVENT_START, $data);
+	$event = AnalyticsLib::EVENT_START; // use correct event name here
+
+	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
 }
 ```
