@@ -52,7 +52,7 @@ class AnalyticsLib
 					error_log('Caught exception: ' . $e->getMessage());
 				}
 
-				if ($event == 'success' || $event == 'fail')
+				if ($event == self::EVENT_SUCCESS || $event == self::EVENT_FAIL)
 				{
 					unset($_COOKIE['psa_tid']);
 					@setcookie("psa_tid", "", time() - 3600);
