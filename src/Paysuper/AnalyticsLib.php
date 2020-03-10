@@ -15,7 +15,7 @@ class AnalyticsLib
 
 	private static $testUrl = 'https://analytics.tst.protocol.one/push';
 
-	private static $prodUrl = 'https://analytics.protocol.one/push';
+	private static $prodUrl = 'https://analytics.pay.super.com/push';
 
     /**
      * payment order was created
