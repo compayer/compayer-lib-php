@@ -208,7 +208,7 @@ class AnalyticsLib
 			];
 
 			$request = new Request('POST', $url, $headers, $data);
-			$client->sendAsync($request);
+			$client->send($request);
 		} catch (Throwable $e) {
 			error_log('Analytics collector push error: ' . $e->getMessage());
 		}
