@@ -31,16 +31,23 @@ class AnalyticsConformDataYamoney
 
 	public static function GetData($request = array())
 	{
-		if (empty($request['paymentType']))
+		$paymentType = '';
+		if (!empty($request['paymentType']))
 		{
+			$paymentType = $request['paymentType'];
+		} elseif(!empty($request['cps_shopPaymentType'])) {
+			$paymentType = $request['cps_shopPaymentType'];
+		}
+
+		if (empty($paymentType)) {
 			return null;
 		}
 
-		$paymentMethod = self::$paymentMethods[$request['paymentType']];
+		$paymentMethod = self::$paymentMethods[$paymentType];
 
 		$cardPanMask = '';
-		$paymentSubMethod = self::$paymentSubMethods[$request['paymentType']];
-		if ($request['paymentType'] === "AC")
+		$paymentSubMethod = self::$paymentSubMethods[$paymentType];
+		if ($paymentType === "AC")
 		{
 			if (!empty($request['cdd_pan_mask']))
 			{
