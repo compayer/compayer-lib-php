@@ -8,6 +8,11 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\unwrap;
 use stdClass;
+use GuzzleHttp\Middleware;
+use Monolog\Logger;
+use Monolog\Handler\SyslogHandler;
+use GuzzleHttp\MessageFormatter;
+use GuzzleHttp\HandlerStack;
 
 class AnalyticsLib
 {
@@ -187,7 +192,12 @@ class AnalyticsLib
 
 	private static function send($url = '', $data = '')
 	{
-        $client = new Client(['verify' => false]);
+        $client = new Client(
+            [
+                'verify' => false,
+                'handler' => self::getHandlerStack(),
+            ]
+        );
 
 		try {
 			$headers = [
@@ -203,4 +213,22 @@ class AnalyticsLib
 			error_log('Analytics collector push error: ' . $e->getMessage());
 		}
 	}
+
+    /**
+     * @return HandlerStack
+     */
+    private static function getHandlerStack()
+    {
+        $name = 'paysuper';
+
+        $logger = new Logger($name);
+        $logger->pushHandler(new SyslogHandler($name));
+
+        $formatter = new MessageFormatter('date: {date_iso_8601} '."\n".'request: '."\n".'{request}'."\n".'response: {response}'."\n");
+
+        $stack = HandlerStack::create();
+        $stack->push(Middleware::log($logger, $formatter));
+
+        return $stack;
+    }
 }
