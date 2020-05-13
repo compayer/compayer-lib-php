@@ -1,6 +1,6 @@
 # PaySuper Analytics PHP Library
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0) 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 PaySuper Analytics is an SDK to implement to your backend server to collect data for financial and marketing reports.
 
@@ -98,4 +98,4 @@ if ($data !== null) {
 
 ## License
 
-The project is available as open source under the terms of the [GPL v3 License](https://www.gnu.org/licenses/gpl-3.0).
+The project is available as open source under the terms of the [Apache-2.0 License](https://opensource.org/licenses/Apache-2.0).
