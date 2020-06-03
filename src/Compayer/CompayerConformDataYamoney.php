@@ -1,10 +1,10 @@
 <?php
 
-namespace Paysuper;
+namespace Compayer;
 
 use stdClass;
 
-class AnalyticsConformDataYamoney
+class CompayerConformDataYamoney
 {
 
 	public static $paymentMethods = array(

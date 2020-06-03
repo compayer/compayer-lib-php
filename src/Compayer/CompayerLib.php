@@ -1,6 +1,6 @@
 <?php
 
-namespace Paysuper;
+namespace Compayer;
 
 use Exception;
 use Ramsey\Uuid\Uuid;
@@ -13,14 +13,15 @@ use Monolog\Logger;
 use Monolog\Handler\SyslogHandler;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\HandlerStack;
+use Throwable;
 
-class AnalyticsLib
+class CompayerLib
 {
 	public static $version = '1.0.0';
 
-	private static $testUrl = 'https://analytics.tst.protocol.one/push';
+	private static $testUrl = 'https://compayer.tst.protocol.one/push';
 
-	private static $prodUrl = 'https://analytics.pay.super.com/push';
+	private static $prodUrl = 'https://compayer.pay.super.com/push';
 
     /**
      * payment order was created
@@ -204,13 +205,13 @@ class AnalyticsLib
 				'Content-Length' => mb_strlen($data),
 				'Referer' => $_SERVER['HTTP_REFERER'],
 				'Content-Type' => 'application/json',
-				'User-Agent' => "ps-analytics-lib-php-" . self::$version,
+				'User-Agent' => "compayer-lib-php-" . self::$version,
 			];
 
 			$request = new Request('POST', $url, $headers, $data);
 			$client->send($request);
 		} catch (Throwable $e) {
-			error_log('Analytics collector push error: ' . $e->getMessage());
+			error_log('Compayer collector push error: ' . $e->getMessage());
 		}
 	}
 
@@ -219,7 +220,7 @@ class AnalyticsLib
      */
     private static function getHandlerStack()
     {
-        $name = 'paysuper';
+        $name = 'compayer';
 
         $logger = new Logger($name);
         $logger->pushHandler(new SyslogHandler($name));
