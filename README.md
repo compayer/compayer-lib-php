@@ -1,18 +1,18 @@
-# PaySuper Analytics PHP Library
+# Compayer PHP Library
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-PaySuper Analytics is a stat data preprocessor and web analytics service that tracks customer events in payment forms for financial and marketing reports.
+Compayer is a stat data preprocessor and web analytics service that tracks customer events in payment forms for financial and marketing reports.
 
-Analytics PHP Library is designed to push stat messages to PaySuper Analytics from the php-based projects.
+Compayer PHP Library is designed to push stat messages to PaySuper Analytics from the php-based projects.
 
-| |The PaySuper Analytics Architecture|
+| |The Compayer Architecture|
 |---|---|
-|**Accepting data**|[Analytics Receiver](https://github.com/paysuper/paysuper-analytics-receiver) is a microservice that accepts the events with data to send them to the Rabbit queue and logs.|
-|**Storing data**|[Analytics Collector](https://github.com/paysuper/paysuper-analytics-collector) is a microservice that processes the data and adds to the database in a uniform format.|
-|**Creating reports**|[Analytics Reporter](https://github.com/paysuper/paysuper-analytics-reporter) is an API backend for [PaySuper Analytics Portal](https://github.com/paysuper/paysuper-analytics-portal) that reads data from the database for building all kinds of reports.|
-|**Displaying reports**|[Analytics Portal](https://github.com/paysuper/paysuper-analytics-portal) is a frontend to represent the reports.|
-|**Storing user accounts**|[Analytics Accounts](https://github.com/paysuper/paysuper-analytics-accounts) is a microservice that stores the analytics user accounts and performs a user registration and authentication.|
+|**Accepting data**|[Compayer Receiver](https://github.com/compayer/compayer-receiver) is a microservice that accepts the events with data to send them to the Rabbit queue and logs.|
+|**Storing data**|[Compayer Collector](https://github.com/compayer/compayer-collector) is a microservice that processes data and stores in a uniform format in the database.|
+|**Creating reports**|[Compayer Reporter](https://github.com/compayer/compayer-reporter) is an API backend for [Compayer Portal](https://github.com/compayer/compayer-portal) that reads data from the database for building all kinds of reports.|
+|**Displaying reports**|[Compayer Portal](https://github.com/compayer/compayer-portal) is a frontend to represent the reports.|
+|**Storing user accounts**|[Compayer Accounts](https://github.com/compayer/compayer-accounts) is a microservice that stores the Compayer user accounts and performs a user registration and authentication.|
 
 ---
 
