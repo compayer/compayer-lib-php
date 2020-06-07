@@ -1,12 +1,12 @@
 {
-  "name": "paysuper/paysuper-analytics-lib-php",
-  "description": "Library for push stat message to Paysuper Analytics from php-bases projects",
+  "name": "compayer/compayer-lib-php",
+  "description": "Library for push stat message to Compayer from php-based projects",
   "minimum-stability": "stable",
   "license": "proprietary",
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/paysuper/paysuper-analytics-lib-php.git"
+      "url": "https://github.com/compayer/compayer-lib-php.git"
     }
   ],
   "authors": [
@@ -23,6 +23,6 @@
     "monolog/monolog": "^1.0"
   },
   "autoload": {
-    "psr-4": {"Paysuper\\": "src/Paysuper"}
+    "psr-4": {"Compayer\\": "src/Compayer"}
   }
 }

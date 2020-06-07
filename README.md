@@ -25,13 +25,13 @@ Compayer PHP Library is designed to push stat messages to PaySuper Analytics fro
 Example to use:
 
 ```php
-use Paysuper\AnalyticsLib;
+use Compayer\CompayerLib;
 
 $accounts = new stdClass();
 $accounts->yourproject = "131312323213132410";
 
 $data = array(
-	"paymentSystem" => "Yandex.Money",  // 'Paysuper', 'Yandex.Money', 'Xsolla'
+	"paymentSystem" => "Yandex.Money",  // 'Compayer', 'Yandex.Money', 'Xsolla'
 	"paymentMethod" => "Bank cards", // 'Bank cards', 'Bank Transfer', 'Cash Payments', 'Cryptocurrency', 'E-payments', 'Mobile Payments', 'Prepaid Cards'
 	"paymentSubMethod" => "Visa",
 	"paymentAmount" => 75,
@@ -52,42 +52,42 @@ $data = array(
 	"merchantTransactionId" => "some id",
 );
 
-if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
-	define('PAYSUPER_ANALYTICS_IS_PROD', true);
+if (!defined('COMPAYER_IS_PROD')) {
+	define('COMPAYER_IS_PROD', true);
 }
 
-if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
-	define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
+if (!defined('COMPAYER_DATA_SOURCE')) {
+	define('COMPAYER_DATA_SOURCE', 'yourproject');
 }
 
-$event = AnalyticsLib::EVENT_START; // use correct event name here
+$event = CompayerLib::EVENT_START; // use correct event name here
 
-AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+CompayerLib::Push(COMPAYER_IS_PROD, COMPAYER_DATA_SOURCE, $event, $data);
 ```
 
 Example to use with the Helper:
 
 ```php
-use Paysuper\AnalyticsConformDataYamoney;
-use Paysuper\AnalyticsLib;
+use Compayer\CompayerConformDataYamoney;
+use Compayer\CompayerLib;
 
 $request = array(); //  response from payment system 
-$data = AnalyticsConformDataYamoney::GetData($request);
+$data = CompayerConformDataYamoney::GetData($request);
 
 if ($data !== null) {
 	$data['userAccounts']->yourproject = "131312323213132410";
 
-	if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
-		define('PAYSUPER_ANALYTICS_IS_PROD', true);
+	if (!defined('COMPAYER_IS_PROD')) {
+		define('COMPAYER_IS_PROD', true);
 	}
 	
-    if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
-		define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
+    if (!defined('COMPAYER_DATA_SOURCE')) {
+		define('COMPAYER_DATA_SOURCE', 'yourproject');
 	}
 
-	$event = AnalyticsLib::EVENT_START; // use correct event name here
+	$event = CompayerLib::EVENT_START; // use correct event name here
 
-	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+	CompayerLib::Push(COMPAYER_IS_PROD, COMPAYER_DATA_SOURCE, $event, $data);
 }
 ```
 
