@@ -4,7 +4,7 @@
 
 Compayer is a stat data preprocessor and web analytics service that tracks customer events in payment forms for financial and marketing reports.
 
-Compayer PHP Library is designed to push stat messages to PaySuper Analytics from the php-based projects.
+Compayer PHP Library is designed to push stat messages to Compayer from the php-based projects.
 
 | |The Compayer Architecture|
 |---|---|
