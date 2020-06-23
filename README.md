@@ -13,7 +13,7 @@ An official PHP SDK library for push stat message to Compayer.
 
 ## Getting Started
 
-Register your account in [Compayer](https://compayer.com) analytics [Publisher Account](https://publisher.xsolla.com/signup) and create the data source.
+Register your account in [Compayer](https://compayer.com) analytics and create the data source.
 In order to use the PHP SDK Library you'll need:
 * DATA SOURCE identifier
 * SECRET KEY of data source
