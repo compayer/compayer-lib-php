@@ -122,19 +122,25 @@ class EventTest extends TestCase
     public function testResolveIpFromHttpClientIp()
     {
         $_SERVER['HTTP_CLIENT_IP'] = 'HTTP_CLIENT_IP';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '';
+        $_SERVER['REMOTE_ADDR'] = '';
         $event = Event::fromArray([]);
         $this->assertEquals($_SERVER['HTTP_CLIENT_IP'], $event->getUserIp());
     }
 
     public function testResolveIpFromHttpXForwardedFor()
     {
+        $_SERVER['HTTP_CLIENT_IP'] = '';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = 'HTTP_X_FORWARDED_FOR';
+        $_SERVER['REMOTE_ADDR'] = '';
         $event = Event::fromArray([]);
         $this->assertEquals($_SERVER['HTTP_X_FORWARDED_FOR'], $event->getUserIp());
     }
 
     public function testResolveIpFromRemoteAddr()
     {
+        $_SERVER['HTTP_CLIENT_IP'] = '';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '';
         $_SERVER['REMOTE_ADDR'] = 'REMOTE_ADDR';
         $event = Event::fromArray([]);
         $this->assertEquals($_SERVER['REMOTE_ADDR'], $event->getUserIp());
