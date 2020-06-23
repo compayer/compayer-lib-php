@@ -1,72 +1,134 @@
-# compayer-lib-php
+# Compayer SDK for PHP
 
-Library for push stat message to Compayer from php-bases projects.
+An official PHP SDK library for push stat message to Compayer.
 
-Example to use:
+## Features
+* Creates and send the Event of start, success and fail to the Compare analytics.
+* Help to convert response message from Yandex.Money, Xsolla and Paysuper to the Event message. 
 
-```php
-use Compayer\CompayerLib;
+## Requirements
+* PHP >=5.5
+* The following PHP extensions required:
+  * json
 
-$accounts = new stdClass();
-$accounts->yourproject = "131312323213132410";
+## Getting Started
 
-$data = array(
-	"paymentSystem" => "Yandex.Money",  // 'Compayer', 'Yandex.Money', 'Xsolla'
-	"paymentMethod" => "Bank cards", // 'Bank cards', 'Bank Transfer', 'Cash Payments', 'Cryptocurrency', 'E-payments', 'Mobile Payments', 'Prepaid Cards'
-	"paymentSubMethod" => "Visa",
-	"paymentAmount" => 75,
-	"paymentCost" => 2.63,
-	"paymentCurrency" => "RUB",
-	"vatAmount" => 0,
-	"vatCurrency" => "",
-	"feesAmount" => 2.63,
-	"feesCurrency" => "RUB",
-	"payoutAmount" => 72.37,
-	"payoutCurrency" => "RUB",
-	"payoutExchangeRate" => 0,
-	"userLang" => "RU",
-	"userPhones" => array("79111236547"),
-	"userEmails" => array("test@test.com"),
-	"userAccounts" => $accounts,
-	"userCountry" => "RU",
-	"merchantTransactionId" => "some id",
-);
+Register your account in [Compayer](https://compayer.com) analytics [Publisher Account](https://publisher.xsolla.com/signup) and create the data source.
+In order to use the PHP SDK Library you'll need:
+* DATA SOURCE identifier
+* SECRET KEY of data source
 
-if (!defined('COMPAYER_IS_PROD')) {
-	define('COMPAYER_IS_PROD', true);
-}
+## Installation
 
-if (!defined('COMPAYER_DATA_SOURCE')) {
-	define('COMPAYER_DATA_SOURCE', 'yourproject');
-}
+### Installing via Composer
 
-$event = CompayerLib::EVENT_START; // use correct event name here
+The recommended way to install Compayer SDK for PHP is through [Composer](http://getcomposer.org).
 
-CompayerLib::Push(COMPAYER_IS_PROD, COMPAYER_DATA_SOURCE, $event, $data);
+``` bash
+$ cd /path/to/your/project
+$ composer require compayer/compayer-sdk-php
 ```
 
-Example to use with helper
+After installing, you need to require Composer's autoloader:
 
 ```php
-use Compayer\CompayerConformDataYamoney;
-use Compayer\CompayerLib;
+require '/path/to/vendor/autoload.php';
+```
 
-$request = array(); //  response from payment system 
-$data = CompayerConformDataYamoney::GetData($request);
+## Quick Examples
 
-if ($data !== null) {
-	$data['userAccounts']->yourproject = "131312323213132410";
+For the analytics to work better, you need to send 2 events: “start” when the user initiates payments and “success” or 
+“fail” (after the payment system responds about the result of the operation).
+The "start" event is optional, but we strongly recommend using it to track the entire payment chain. 
 
-	if (!defined('COMPAYER_IS_PROD')) {
-		define('COMPAYER_IS_PROD', true);
-	}
-	
-    if (!defined('COMPAYER_DATA_SOURCE')) {
-		define('COMPAYER_DATA_SOURCE', 'yourproject');
-	}
+To send a start event, use the following example:
 
-	$event = CompayerLib::EVENT_START; // use correct event name here
+```php
+use Compayer\SDK\Client;
+use Compayer\SDK\Event;
 
-	CompayerLib::Push(COMPAYER_IS_PROD, COMPAYER_DATA_SOURCE, $event, $data);
-}
+const DATA_SOURCE = 'data_source_id';
+const SECRET_KEY = 'secret_key';
+
+// Initialization of the client for sending events.
+// Available configuration parameters can be found in the class constants Client::CONFIG_*.
+$client = Client::create([
+    Client::CONFIG_DATA_SOURCE => DATA_SOURCE,
+    Client::CONFIG_SECRET_KEY => SECRET_KEY,
+]);
+
+// Create an instance of the Event class and set the maximum possible properties about the user and payment.
+// All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
+// to identify the user who made the payment.
+$event = (new Event())
+    ->setMerchantTransactionId('12345')
+    ->setPaymentAmount(250.50)
+    ->setPaymentCurrency('RUB')
+    ->setUserLang('RUS')
+    ->setUserEmails(['customer@compayer.com'])
+    ->setUserAccounts(['54321'])
+    ->setExtra(['my_property' => 'value']);
+
+// You can also create an object with an event from an array, 
+// where the names of the keys of the array match the names of the Event properties.
+$event = Event::fromArray([
+    'merchantTransactionId' => '12345',
+    'paymentAmount' => 250.50,
+    'paymentCurrency' => 'RUB',
+    'userLang' => 'RUS',
+    'userEmails' => ['customer@compayer.com'],
+    'userAccounts' => ['54321'],
+    'extra' => ['my_property' => 'value'],
+]);
+
+// Send the generated event and get the generated transaction identifier.
+// Use it to send "success" and "fail" events to chain events.
+// Transaction identifier is UUID and is a string like 3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb.
+$transactionId = $client->pushStartEvent($event);
+```
+
+After the payment system has received a response about the payment result (success or failure), it is necessary to send another event.
+Form the event as described in the start event. Enrich the event with the data that you received after payment.
+If at the start step you received a transaction ID, set it to link the entire payment chain.
+
+For events of "success" and "fail", a payment system response is required in its original form.
+The response should be written as a string with the key "response" in the property "extra".
+
+```php
+use Compayer\SDK\Client;
+use Compayer\SDK\Event;
+
+const DATA_SOURCE = 'data_source_id';
+const SECRET_KEY = 'secret_key';
+
+// Transaction ID received on start event
+$transactionId = '3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb';
+
+// Initialization of the client for sending events.
+// Available configuration parameters can be found in the class constants Client::CONFIG_*.
+$client = Client::create([
+    Client::CONFIG_DATA_SOURCE => DATA_SOURCE,
+    Client::CONFIG_SECRET_KEY => SECRET_KEY,
+]);
+
+// Create an instance of the Event class and set the maximum possible properties about the user and payment
+// All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
+// to identify the user who made the payment. If you have a transaction ID for the start event, specify it.
+$event = (new Event())
+    ->setTransactionId($transactionId)
+    ->setMerchantTransactionId('12345')
+    ->setPaymentAmount(250.50)
+    ->setPaymentCurrency('RUB')
+    ->setPayoutAmount(3.87)
+    ->setPayoutCurrency('USD')
+    ->setUserEmails(['customer@compayer.com'])
+    ->setUserAccounts(['54321'])
+    ->setExtra([
+        'my_property' => 'value',
+        Event::EXTRA_RESPONSE => 'Payment system response as a string',
+    ]);
+
+// Send the generated event
+// Or use $client->pushFailEvent($event) in case of payment failure
+$client->pushSuccessEvent($event);
 ```
