@@ -1,0 +1,14 @@
+language: php
+php:
+- 5.6
+before_script:
+- travis_retry composer self-update
+- travis_retry composer install --no-interaction --prefer-source
+script:
+- vendor/bin/phpunit --coverage-clover=coverage.xml --configuration phpunit.xml.dist
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+notifications:
+  email: false
+  slack:
+    secure: WulCsNQ2Pijf3Pu2emWb/QvHwbxC7GePf5+Srchukjtv1/TLATj4s4CTGZi+Jm6UXggolyhu2QK1EATXkdDlkuPmzax+ZJgOzznKq82U/F90a1uRlz9aWfDbrHTTPf0X5P6G/HhP4Y9MJGqjk+xRmjVQzYRR9l7oNZ/YMM6ftJq98EvTccKFr9xus5bgBgkO7f+EoCSKnSsRM8M/5R0ciAusDAVLQVhYb7fZ07Z9dQWjkVqoyBCukePQNUJ76hiTT3M01VWUEsYZH9w5jgWSl9m93FYCnwWBKPm0ToTn48gmwxQWChtRtfG86yUwxhTvfAd3GeiB/46JdehUmxemBmk4z9CPQyPcTDxyqCgLxRQgbaoJk0zcftBpBvZhiTAA2sauzeU1zuwRm4iQJZ7YJ92ol0BTv+jQ/3SjlTw/CkvVL7hZ7dhjMC0PfKPTl+CmqvmzrMJ/Z6z9rEI3ywVEBt5hWk8WuocXgvTjJNHcVwElWCmFTiZBBYBe2jPpEdYtE9Tji1UV2Y49k87E1AwPID1Oo8+wgo/DKHpOQ5BAfN2a/eiB3pCZuxLrQ+LgX91BqKbprN9gh9pZQFeI598Dnk+Ua1GqIDi2vnXRacJ4lzgsiIm+owhXii0GV5lZR5c3nuLRXDBFRMWwp64A2VDR2dmmIycFdhVriFuvRJoUao4=

@@ -1,11 +1,12 @@
 {
   "name": "compayer/compayer-lib-php",
+  "homepage": "https://compayer.com",
   "description": "Library for push stat message to Compayer from php-based projects",
   "minimum-stability": "stable",
   "license": "proprietary",
   "repositories": [
     {
-      "type": "vcs",
+      "type": "git",
       "url": "https://github.com/compayer/compayer-lib-php.git"
     }
   ],
@@ -13,16 +14,28 @@
     {
       "name": "Evgeniy Strigo",
       "email": "evgeniy.strigo@protocol.one"
+    },
+    {
+      "name": "Vadim Sabirov",
+      "email": "vadim.sabirov@protocol.one"
     }
   ],
   "require": {
-    "guzzlehttp/guzzle": "6.5.2",
+    "php": ">=5.5",
     "ext-json": "*",
-    "ramsey/uuid": "3.9.2",
-    "ext-mbstring": "*",
-    "monolog/monolog": "^1.0"
+    "guzzlehttp/guzzle": "~6.5",
+    "ramsey/uuid": "3.9.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.0",
+    "mockery/mockery": "^1.3"
   },
   "autoload": {
-    "psr-4": {"Compayer\\": "src/Compayer"}
+    "psr-4": {"Compayer\\SDK\\": "src/Compayer"}
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Compayer\\SDK\\Tests\\": "tests/Compayer"
+    }
   }
 }
