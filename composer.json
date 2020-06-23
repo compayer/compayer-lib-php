@@ -1,5 +1,5 @@
 {
-  "name": "compayer/compayer-sdk-php",
+  "name": "compayer/compayer-lib-php",
   "homepage": "https://compayer.com",
   "description": "Library for push stat message to Compayer from php-based projects",
   "minimum-stability": "stable",

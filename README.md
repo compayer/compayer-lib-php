@@ -1,5 +1,10 @@
 # Compayer SDK for PHP
 
+[![Latest Stable Version](https://poser.pugx.org/compayer/compayer-lib-php/v/stable.png)](https://packagist.org/packages/compayer/compayer-lib-php)
+[![Build Status](https://travis-ci.org/compayer/compayer-lib-php.png?branch=master)](https://travis-ci.org/compayer/compayer-lib-php)
+[![Code Coverage](https://codecov.io/gh/compayer/compayer-lib-php/branch/master/graph/badge.svg)](https://codecov.io/gh/compayer/compayer-lib-php)
+[![Downloads](https://poser.pugx.org/compayer/compayer-lib-php/d/total.png)](https://packagist.org/packages/compayer/compayer-lib-php)
+
 An official PHP SDK library for push stat message to Compayer.
 
 ## Features
@@ -26,7 +31,7 @@ The recommended way to install Compayer SDK for PHP is through [Composer](http:/
 
 ``` bash
 $ cd /path/to/your/project
-$ composer require compayer/compayer-sdk-php
+$ composer require compayer/compayer-lib-php
 ```
 
 After installing, you need to require Composer's autoloader:
@@ -40,6 +45,10 @@ require '/path/to/vendor/autoload.php';
 For the analytics to work better, you need to send 2 events: “start” when the user initiates payments and “success” or 
 “fail” (after the payment system responds about the result of the operation).
 The "start" event is optional, but we strongly recommend using it to track the entire payment chain. 
+
+The event tries to determine the ip address of the user and the address of the payment initiation page automatically, 
+based on data from the server request. If the user’s request is not available to the script, you can set the payment 
+page or the user’s IP address yourself (this is necessary for the geolocation filters to work correctly).
 
 To send a start event, use the following example:
 
