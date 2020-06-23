@@ -291,6 +291,16 @@ class Event
     }
 
     /**
+     * @param string
+     * @return Event
+     */
+    public function setEventUrl($eventUrl)
+    {
+        $this->eventUrl = $eventUrl;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getPaymentSystem()
@@ -602,6 +612,16 @@ class Event
     public function getUserIp()
     {
         return $this->userIp;
+    }
+
+    /**
+     * @param string
+     * @return Event
+     */
+    public function setUserIp($userIp)
+    {
+        $this->userIp = $userIp;
+        return $this;
     }
 
     /**
