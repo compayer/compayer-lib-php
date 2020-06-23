@@ -35,7 +35,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Compayer\\SDK\\Tests\\": "tests"
+      "Compayer\\SDK\\Tests\\": "tests/Compayer"
     }
   }
 }

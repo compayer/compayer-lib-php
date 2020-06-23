@@ -8,7 +8,7 @@
 An official PHP SDK library for push stat message to Compayer.
 
 ## Features
-* Creates and send the Event of start, success and fail to the Compare analytics.
+* Creates and send the Event of start, success, fail or refund to the Compare analytics.
 * Help to convert response message from Yandex.Money, Xsolla and Paysuper to the Event message. 
 
 ## Requirements
@@ -20,8 +20,8 @@ An official PHP SDK library for push stat message to Compayer.
 
 Register your account in [Compayer](https://compayer.com) analytics and create the data source.
 In order to use the PHP SDK Library you'll need:
-* DATA SOURCE identifier
-* SECRET KEY of data source
+* CLIENT ID (data source identifier)
+* SECRET KEY (data source secret API key)
 
 ## Installation
 
@@ -42,8 +42,8 @@ require '/path/to/vendor/autoload.php';
 
 ## Quick Examples
 
-For the analytics to work better, you need to send 2 events: “start” when the user initiates payments and “success” or 
-“fail” (after the payment system responds about the result of the operation).
+For the analytics to work better, you need to send 2 events: "start" when the user initiates payments and "success", 
+"fail" or "refund" (after the payment system responds about the result of the operation).
 The "start" event is optional, but we strongly recommend using it to track the entire payment chain. 
 
 The event tries to determine the ip address of the user and the address of the payment initiation page automatically, 
@@ -91,16 +91,16 @@ $event = Event::fromArray([
 ]);
 
 // Send the generated event and get the generated transaction identifier.
-// Use it to send "success" and "fail" events to chain events.
+// Use it to send "success", "fail" or "refund" events to chain events.
 // Transaction identifier is UUID and is a string like 3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb.
 $transactionId = $client->pushStartEvent($event);
 ```
 
-After the payment system has received a response about the payment result (success or failure), it is necessary to send another event.
+After the payment system has received a response about the payment result (success, failure or refund), it is necessary to send another event.
 Form the event as described in the start event. Enrich the event with the data that you received after payment.
 If at the start step you received a transaction ID, set it to link the entire payment chain.
 
-For events of "success" and "fail", a payment system response is required in its original form.
+For events of "success", "fail" and "refund", a payment system response is required in its original form.
 The response should be written as a string with the key "response" in the property "extra".
 
 ```php
@@ -132,12 +132,11 @@ $event = (new Event())
     ->setPayoutCurrency('USD')
     ->setUserEmails(['customer@compayer.com'])
     ->setUserAccounts(['54321'])
-    ->setExtra([
-        'my_property' => 'value',
-        Event::EXTRA_RESPONSE => 'Payment system response as a string',
-    ]);
+    ->setExtra(['my_property' => 'value'])
+    ->setPaymentSystemResponse('Payment system response as a string');
 
 // Send the generated event
 // Or use $client->pushFailEvent($event) in case of payment failure
+// Or use $client->pushRefundEvent($event) in case of payment refund
 $client->pushSuccessEvent($event);
 ```

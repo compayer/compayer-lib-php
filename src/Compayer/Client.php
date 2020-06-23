@@ -53,7 +53,7 @@ class Client
 
     private function __construct()
     {
-        $this->eventApiUrl = sprintf('https://compayer.pay.super.com/push/v%d', self::VERSION);
+        $this->eventApiUrl = 'https://compayer.pay.super.com';
         $this->transport = new Guzzle();
     }
 
@@ -146,6 +146,24 @@ class Client
     }
 
     /**
+     * Send refund Event
+     * @param Event $event
+     * @return bool
+     * @throws InvalidArgumentException
+     * @throws UnableToSendEvent
+     */
+    public function pushRefundEvent(Event $event)
+    {
+        $extra = $event->getExtra();
+        if (!$extra || !array_key_exists(Event::EXTRA_RESPONSE, $extra)) {
+            throw new InvalidArgumentException('Payment system response message cannot be empty');
+        }
+
+        $event->setEvent(Event::EVENT_REFUND);
+        return $this->pushEvent($event);
+    }
+
+    /**
      * @param Event $event
      * @return bool
      * @throws UnableToSendEvent
@@ -158,7 +176,7 @@ class Client
         $data = json_encode($event->toArray());
 
         $token = hash(self::TOKEN_HASH_ALG, $data . $this->secretKey);
-        $url = sprintf('%s/%s', $this->eventApiUrl, $this->dataSourceId);
+        $url = sprintf('%s/push/v%d/%s', $this->eventApiUrl, self::VERSION, $this->dataSourceId);
 
         $headers = [
             'Authorization' => "Bearer {$token}",

@@ -2,7 +2,6 @@
 
 namespace Compayer\SDK;
 
-use DateTime;
 use InvalidArgumentException;
 
 /**
@@ -23,6 +22,9 @@ class Event
 
     /** Event type fail */
     const EVENT_FAIL = 'fail';
+
+    /** Event type refund */
+    const EVENT_REFUND = 'refund';
 
     /** Type of SDK data channel */
     const DATA_CHANNEL = 'back';
@@ -238,7 +240,7 @@ class Event
      */
     public function setEvent($event)
     {
-        if ($event && !in_array($event, [self::EVENT_START, self::EVENT_SUCCESS, self::EVENT_FAIL])) {
+        if ($event && !in_array($event, [self::EVENT_START, self::EVENT_SUCCESS, self::EVENT_FAIL, self::EVENT_REFUND])) {
             throw new InvalidArgumentException('Invalid event name');
         }
 
@@ -291,7 +293,7 @@ class Event
     }
 
     /**
-     * @param string
+     * @param string $eventUrl
      * @return Event
      */
     public function setEventUrl($eventUrl)
@@ -615,7 +617,7 @@ class Event
     }
 
     /**
-     * @param string
+     * @param string $userIp
      * @return Event
      */
     public function setUserIp($userIp)
@@ -646,7 +648,29 @@ class Event
      */
     public function setExtra($extra)
     {
-        $this->extra = $extra;
+        $this->extra += $extra;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentSystemResponse()
+    {
+        if (!array_key_exists(self::EXTRA_RESPONSE, $this->extra)) {
+            return '';
+        }
+
+        return $this->extra[self::EXTRA_RESPONSE];
+    }
+
+    /**
+     * @param string $paymentSystemResponse
+     * @return Event
+     */
+    public function setPaymentSystemResponse($paymentSystemResponse)
+    {
+        $this->extra[self::EXTRA_RESPONSE] = $paymentSystemResponse;
         return $this;
     }
 

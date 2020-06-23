@@ -22,6 +22,17 @@ class ClientTest extends TestCase
         $this->assertInstanceOf("\Compayer\SDK\Client", $this->getClient());
     }
 
+    public function testCreateWithAllParams()
+    {
+        $client = Client::create([
+            Client::CONFIG_DATA_SOURCE => "data_source",
+            Client::CONFIG_SECRET_KEY => "secret_key",
+            Client::CONFIG_SANDBOX_MODE => true,
+            Client::CONFIG_EVENT_API_URL => 'http://compayer.com',
+        ]);
+        $this->assertInstanceOf("\Compayer\SDK\Client", $client);
+    }
+
     public function testUnableToSendEvent()
     {
         $this->expectException(UnableToSendEvent::class);
@@ -93,6 +104,59 @@ class ClientTest extends TestCase
             'extra' => [Event::EXTRA_RESPONSE => "response"],
         ]));
         $this->assertTrue($result);
+    }
+
+    public function testPushRefundEventWithoutResponse()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $client = $this->getClient();
+        $client->pushRefundEvent(Event::fromArray([]));
+    }
+
+    public function testRefundFailEventWithResponse()
+    {
+        $client = $this->getClient();
+        $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
+        $transport->shouldReceive('send')->andReturn([true]);
+        $client->setTransport($transport);
+
+        $result = $client->pushRefundEvent(Event::fromArray([
+            'userAccounts' => ['123'],
+            'extra' => [Event::EXTRA_RESPONSE => "response"],
+        ]));
+        $this->assertTrue($result);
+    }
+
+    public function testSetTestEventForSandboxMode()
+    {
+        $client = Client::create([
+            Client::CONFIG_DATA_SOURCE => "data_source",
+            Client::CONFIG_SECRET_KEY => "secret_key",
+            Client::CONFIG_SANDBOX_MODE => true,
+        ]);
+        $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
+        $transport->shouldReceive('send')
+            ->with('POST', 'https://compayer.pay.super.com/push/v2/data_source', Mockery::any(), Mockery::on(function ($argument) {
+                return (bool)preg_match('/"isTest":true/', $argument);
+            }))
+            ->andReturn([true]);
+        $client->setTransport($transport);
+        $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
+    }
+
+    public function testSetEventApiUrl()
+    {
+        $client = Client::create([
+            Client::CONFIG_DATA_SOURCE => "data_source",
+            Client::CONFIG_SECRET_KEY => "secret_key",
+            Client::CONFIG_EVENT_API_URL => 'http://compayer.com',
+        ]);
+        $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
+        $transport->shouldReceive('send')
+            ->with('POST', 'http://compayer.com/push/v2/data_source', Mockery::any(), Mockery::any())
+            ->andReturn([true]);
+        $client->setTransport($transport);
+        $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
     }
 
     private function getClient()

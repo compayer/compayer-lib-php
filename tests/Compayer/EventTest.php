@@ -12,6 +12,8 @@ class EventTest extends TestCase
         $event = Event::fromArray([]);
         $this->assertEquals('', $event->getTransactionId());
         $this->assertEquals('', $event->getMerchantTransactionId());
+        $this->assertEquals(false, $event->isTest());
+        $this->assertEquals('', $event->getDataSource());
         $this->assertEquals('', $event->getEvent());
         $this->assertEquals('', $event->getEventUrl());
         $this->assertEquals('', $event->getPaymentSystem());
@@ -31,31 +33,9 @@ class EventTest extends TestCase
         $this->assertEquals([], $event->getUserPhones());
         $this->assertEquals([], $event->getUserAccounts());
         $this->assertEquals('', $event->getUserIp());
-        $this->assertEquals('', $event->getUserIp());
+        $this->assertEquals('', $event->getUserLang());
         $this->assertEquals('', $event->getOriginalRequest());
         $this->assertEquals([], $event->getExtra());
-    }
-
-    public function testFromArrayWithInvalidCompayerTransactionId()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        Event::fromArray(['transactionId' => '12345']);
-    }
-
-    public function testFromArrayWithValidCompayerTransactionId()
-    {
-        Event::fromArray(['transactionId' => '3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb']);
-    }
-
-    public function testFromArrayWithInvalidEvent()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        Event::fromArray(['event' => 'test']);
-    }
-
-    public function testFromArrayWithValidEvent()
-    {
-        Event::fromArray(['event' => Event::EVENT_START]);
     }
 
     public function testFromArrayToArray()
@@ -95,5 +75,79 @@ class EventTest extends TestCase
         $event = Event::fromArray($data);
 
         $this->assertEquals($data, $event->toArray());
+    }
+
+    public function testFromArrayWithInvalidCompayerTransactionId()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Event::fromArray(['transactionId' => '12345']);
+    }
+
+    public function testFromArrayWithValidCompayerTransactionId()
+    {
+        Event::fromArray(['transactionId' => '3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb']);
+    }
+
+    public function testFromArrayWithInvalidEvent()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Event::fromArray(['event' => 'test']);
+    }
+
+    public function testFromArrayWithValidEvent()
+    {
+        Event::fromArray(['event' => Event::EVENT_START]);
+    }
+
+    public function testEmptyGetPaymentSystemResponse()
+    {
+        $event = Event::fromArray([]);
+        $this->assertEquals('', $event->getPaymentSystemResponse());
+    }
+
+    public function testNotEmptyGetPaymentSystemResponse()
+    {
+        $event = Event::fromArray(['paymentSystemResponse' => 'response']);
+        $this->assertEquals('response', $event->getPaymentSystemResponse());
+    }
+
+    public function testSetExtraWithExistsPaymentSystemResponse()
+    {
+        $event = Event::fromArray(['paymentSystemResponse' => 'response']);
+        $event->setExtra(['php' => 'unit']);
+        $this->assertEquals('response', $event->getPaymentSystemResponse());
+        $this->assertEquals(['php' => 'unit', Event::EXTRA_RESPONSE => 'response'], $event->getExtra());
+    }
+
+    public function testResolveIpFromHttpClientIp()
+    {
+        $_SERVER['HTTP_CLIENT_IP'] = 'HTTP_CLIENT_IP';
+        $event = Event::fromArray([]);
+        $this->assertEquals($_SERVER['HTTP_CLIENT_IP'], $event->getUserIp());
+    }
+
+    public function testResolveIpFromHttpXForwardedFor()
+    {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = 'HTTP_X_FORWARDED_FOR';
+        $event = Event::fromArray([]);
+        $this->assertEquals($_SERVER['HTTP_X_FORWARDED_FOR'], $event->getUserIp());
+    }
+
+    public function testResolveIpFromRemoteAddr()
+    {
+        $_SERVER['REMOTE_ADDR'] = 'REMOTE_ADDR';
+        $event = Event::fromArray([]);
+        $this->assertEquals($_SERVER['REMOTE_ADDR'], $event->getUserIp());
+    }
+
+    public function testResolveEventUrl()
+    {
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
+        $_SERVER['SERVER_PORT'] = '8080';
+        $_SERVER['SERVER_NAME'] = 'compayer.com';
+        $_SERVER['REQUEST_URI'] = '/test?a=1&b=2';
+        $url = 'http://compayer.com:8080' . $_SERVER['REQUEST_URI'];
+        $event = Event::fromArray([]);
+        $this->assertEquals($url, $event->getEventUrl());
     }
 }
