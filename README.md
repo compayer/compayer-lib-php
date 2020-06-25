@@ -103,6 +103,7 @@ If at the start step you received a transaction ID, set it to link the entire pa
 
 For events of "success", "fail" and "refund", a payment system response is required in its original form.
 The response should be written as a string with the key "response" in the property "extra".
+For example, if the answer came in the jSON format, then use the construct: `setPaymentSystemResponse(json_encode($jsonPaymentSystemResponse))`.
 
 ```php
 use Compayer\SDK\Client;
