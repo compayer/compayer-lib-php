@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/compayer/compayer-lib-php.png?branch=master)](https://travis-ci.org/compayer/compayer-lib-php)
 [![Code Coverage](https://codecov.io/gh/compayer/compayer-lib-php/branch/master/graph/badge.svg)](https://codecov.io/gh/compayer/compayer-lib-php)
 [![Downloads](https://poser.pugx.org/compayer/compayer-lib-php/d/total.png)](https://packagist.org/packages/compayer/compayer-lib-php)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/compayer/compayer-lib-php/master/LICENSE)
 
 An official PHP SDK library for push stat message to Compayer.
 
