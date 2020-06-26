@@ -2,6 +2,13 @@
 
 namespace Compayer\SDK;
 
+/**
+ * Class Response
+ *
+ * Representation of response send of Event
+ *
+ * @package Compayer\SDK
+ */
 class Response
 {
     /** @var string Event transaction identifier */

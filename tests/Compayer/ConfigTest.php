@@ -2,7 +2,7 @@
 
 namespace Compayer\SDK\Tests;
 
-use Compayer\SDK\Transport\Response;
+use Compayer\SDK\Transport\Log;
 use Compayer\SDK\Transport\TransportInterface;
 use PHPUnit\Framework\TestCase;
 use Compayer\SDK\Config;
@@ -41,6 +41,6 @@ class ConfigTest extends TestCase
 
 class CustomTransport implements TransportInterface {
     public function send($method, $url, $headers, $body) {
-        return new Response(200, [], 'body');
+        return new Log(200, [], 'body');
     }
 }

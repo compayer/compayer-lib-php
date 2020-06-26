@@ -22,6 +22,13 @@ class Guzzle implements TransportInterface
             throw new UnableToSendEvent('Unable to send Event', 500, $e);
         }
 
-        return new Response($response->getStatusCode(), $response->getHeaders(), $response->getBody());
+        return (new Log())
+            ->setRequestUri($request->getUri())
+            ->setRequestMethod($request->getMethod())
+            ->setRequestHeaders($request->getHeaders())
+            ->setRequestBody($request->getBody())
+            ->setResponseStatusCode($response->getStatusCode())
+            ->setResponseHeaders($response->getHeaders())
+            ->setResponseBody($response->getBody());
     }
 }

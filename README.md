@@ -64,7 +64,7 @@ const CLIENT_ID = 'client_id';
 const SECRET_KEY = 'secret_key';
 
 // Create and configure a configuration object (e.g. with debug mode).
-$config = new Config('clientId', 'secretKey');
+$config = new Config(CLIENT_ID, SECRET_KEY);
 $config->setDebugMode(true);
 
 // Create SDK client for sending events.
@@ -127,7 +127,7 @@ const CLIENT_ID = 'client_id';
 const SECRET_KEY = 'secret_key';
 
 // Create and configure a configuration object (e.g. with debug mode).
-$config = new Config('clientId', 'secretKey');
+$config = new Config(CLIENT_ID, SECRET_KEY);
 $config->setDebugMode(true);
 
 // Create SDK client for sending events.

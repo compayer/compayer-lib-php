@@ -122,17 +122,13 @@ class Client
 
         $log = [];
         $executionStartTime = microtime(true);
-        $method = 'POST';
 
-        $response = $this->config->getTransport()->send($method, $url, $headers, $data);
+        $response = $this->config->getTransport()->send('POST', $url, $headers, $data);
 
         if ($this->config->isDebugMode()) {
             $log = [
                 'event' => $event,
-                'headers' => $headers,
-                'url' => $url,
-                'method' => $method,
-                'response' => $response->toArray(),
+                'transport' => $response->toArray(),
                 'execution_time' => microtime(true) - $executionStartTime];
         }
 

@@ -9,7 +9,7 @@ interface TransportInterface
      * @param string $url Requesting URL
      * @param array $headers Headers params
      * @param string $body Body message
-     * @return Response
+     * @return Log
      */
     public function send($method, $url, $headers, $body);
 }

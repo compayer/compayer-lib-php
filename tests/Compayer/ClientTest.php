@@ -6,7 +6,7 @@ use Compayer\SDK\Config;
 use Compayer\SDK\Exceptions\UnableToFindPaymentSystemResponse;
 use Compayer\SDK\Exceptions\UnableToFindUserIdentity;
 use Compayer\SDK\Exceptions\UnableToSendEvent;
-use Compayer\SDK\Transport\Response;
+use Compayer\SDK\Transport\Log;
 use PHPUnit\Framework\TestCase;
 use Compayer\SDK\Client;
 use Compayer\SDK\Event;
@@ -39,7 +39,7 @@ class ClientTest extends TestCase
     public function testPushStartEvent()
     {
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn(new Response());
+        $transport->shouldReceive('send')->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport);
@@ -61,7 +61,7 @@ class ClientTest extends TestCase
     public function testPushSuccessEventWithResponse()
     {
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn(new Response());
+        $transport->shouldReceive('send')->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport);
@@ -85,7 +85,7 @@ class ClientTest extends TestCase
     public function testPushFailEventWithResponse()
     {
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn(new Response());
+        $transport->shouldReceive('send')->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport);
@@ -109,7 +109,7 @@ class ClientTest extends TestCase
     public function testRefundFailEventWithResponse()
     {
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn(new Response());
+        $transport->shouldReceive('send')->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport);
@@ -129,7 +129,7 @@ class ClientTest extends TestCase
             ->with('POST', 'https://compayer.pay.super.com/push/v2/clientId', Mockery::any(), Mockery::on(function ($argument) {
                 return (bool)preg_match('/"isTest":true/', $argument);
             }))
-            ->andReturn(new Response());
+            ->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport)->setSandboxMode(true);
@@ -143,7 +143,7 @@ class ClientTest extends TestCase
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
         $transport->shouldReceive('send')
             ->with('POST', 'http://compayer.com/push/v2/clientId', Mockery::any(), Mockery::any())
-            ->andReturn(new Response());
+            ->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport)->setEventApiUrl('http://compayer.com');
@@ -155,7 +155,7 @@ class ClientTest extends TestCase
     public function testSetDebugMode()
     {
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn(new Response());
+        $transport->shouldReceive('send')->andReturn(new Log());
 
         $config = new Config('clientId', 'secretKey');
         $config->setTransport($transport)->setDebugMode(true);
