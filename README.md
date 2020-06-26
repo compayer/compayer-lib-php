@@ -19,10 +19,11 @@ An official PHP SDK library for push stat message to Compayer.
 
 ## Getting Started
 
-Register your account in [Compayer](https://compayer.com) analytics and create the data source.
+Register your account in [Compayer](https://compayer.com) analytics and go onboarding.
+At the end of onboarding, the data-source will be automatically created, which will indicate the client ID and the secret key.
 In order to use the PHP SDK Library you'll need:
-* CLIENT ID (data source identifier)
-* SECRET KEY (data source secret API key)
+* CLIENT ID
+* SECRET KEY
 
 ## Installation
 
@@ -55,17 +56,19 @@ To send a start event, use the following example:
 
 ```php
 use Compayer\SDK\Client;
+use Compayer\SDK\Config;
 use Compayer\SDK\Event;
+use Compayer\SDK\Exceptions\SdkException;
 
-const DATA_SOURCE = 'data_source_id';
+const CLIENT_ID = 'client_id';
 const SECRET_KEY = 'secret_key';
 
-// Initialization of the client for sending events.
-// Available configuration parameters can be found in the class constants Client::CONFIG_*.
-$client = Client::create([
-    Client::CONFIG_DATA_SOURCE => DATA_SOURCE,
-    Client::CONFIG_SECRET_KEY => SECRET_KEY,
-]);
+// Create and configure a configuration object (e.g. with debug mode).
+$config = new Config('clientId', 'secretKey');
+$config->setDebugMode(true);
+
+// Create SDK client for sending events.
+$client = new Client($config);
 
 // Create an instance of the Event class and set the maximum possible properties about the user and payment.
 // All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
@@ -91,10 +94,19 @@ $event = Event::fromArray([
     'extra' => ['my_property' => 'value'],
 ]);
 
-// Send the generated event and get the generated transaction identifier.
+try {
+    // Send the generated event and get the response message with transaction identifier and log.
+    $response = $client->pushStartEvent($event);
+} catch (SdkException $e) {
+    print_r($e->getMessage());
+}
+
 // Use it to send "success", "fail" or "refund" events to chain events.
 // Transaction identifier is UUID and is a string like 3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb.
-$transactionId = $client->pushStartEvent($event);
+$transactionId = $response->getTransactionId();
+
+// Show logs with the debug mode configuration.
+print_r($response->getLog());
 ```
 
 After the payment system has received a response about the payment result (success, failure or refund), it is necessary to send another event.
@@ -107,20 +119,22 @@ For example, if the answer came in the jSON format, then use the construct: `set
 
 ```php
 use Compayer\SDK\Client;
+use Compayer\SDK\Config;
 use Compayer\SDK\Event;
+use Compayer\SDK\Exceptions\SdkException;
 
-const DATA_SOURCE = 'data_source_id';
+const CLIENT_ID = 'client_id';
 const SECRET_KEY = 'secret_key';
+
+// Create and configure a configuration object (e.g. with debug mode).
+$config = new Config('clientId', 'secretKey');
+$config->setDebugMode(true);
+
+// Create SDK client for sending events.
+$client = new Client($config);
 
 // Transaction ID received on start event
 $transactionId = '3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb';
-
-// Initialization of the client for sending events.
-// Available configuration parameters can be found in the class constants Client::CONFIG_*.
-$client = Client::create([
-    Client::CONFIG_DATA_SOURCE => DATA_SOURCE,
-    Client::CONFIG_SECRET_KEY => SECRET_KEY,
-]);
 
 // Create an instance of the Event class and set the maximum possible properties about the user and payment
 // All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
@@ -137,8 +151,12 @@ $event = (new Event())
     ->setExtra(['my_property' => 'value'])
     ->setPaymentSystemResponse('Payment system response as a string');
 
-// Send the generated event
-// Or use $client->pushFailEvent($event) in case of payment failure
-// Or use $client->pushRefundEvent($event) in case of payment refund
-$client->pushSuccessEvent($event);
+try {
+    // Send the generated event
+    // Or use $client->pushFailEvent($event) in case of payment failure
+    // Or use $client->pushRefundEvent($event) in case of payment refund
+    $client->pushSuccessEvent($event);
+} catch (SdkException $e) {
+    print_r($e->getMessage());
+}
 ```
