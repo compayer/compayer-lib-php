@@ -1,10 +1,14 @@
-# Compayer PHP Library
+# Compayer PHP SDK
 
+[![Latest Stable Version](https://poser.pugx.org/compayer/compayer-lib-php/v/stable.png)](https://packagist.org/packages/compayer/compayer-lib-php)
+[![Build Status](https://travis-ci.org/compayer/compayer-lib-php.png?branch=master)](https://travis-ci.org/compayer/compayer-lib-php)
+[![Code Coverage](https://codecov.io/gh/compayer/compayer-lib-php/branch/master/graph/badge.svg)](https://codecov.io/gh/compayer/compayer-lib-php)
+[![Downloads](https://poser.pugx.org/compayer/compayer-lib-php/d/total.png)](https://packagist.org/packages/compayer/compayer-lib-php)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Compayer is a stat data preprocessor and web analytics service that tracks customer events in payment forms for financial and marketing reports.
 
-Compayer PHP Library is designed to push stat messages to PaySuper Analytics from the php-based projects.
+Compayer PHP SDK library is designed to push stat messages to PaySuper Analytics from the php-based projects.
 
 | |The Compayer Architecture|
 |---|---|
@@ -14,81 +18,144 @@ Compayer PHP Library is designed to push stat messages to PaySuper Analytics fro
 |**Displaying reports**|[Compayer Portal](https://github.com/compayer/compayer-portal) is a frontend to represent the reports.|
 |**Storing user accounts**|[Compayer Accounts](https://github.com/compayer/compayer-accounts) is a microservice that stores the Compayer user accounts and performs a user registration and authentication.|
 
+## Features
+- Creates and send the Event of start, success, fail or refund to the Compare analytics.
+- Help to convert response message from Yandex.Money, Xsolla and Paysuper to the Event message. 
+
 ---
 
 ## Table of Contents
 
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
 - [Usage](#usage)
+
+## Requirements
+- PHP >=5.5
+- Required PHP extensions: *json*
+
+## Getting Started
+
+Register your account in [Compayer](https://compayer.com) analytics to get:
+- CLIENT ID (unique identifier for your client)
+- SECRET KEY (secret API key for your client)
+
+## Installation
+
+We recommend installing Compayer PHP SDK using [Composer](http://getcomposer.org).
+
+``` bash
+$ cd /path/to/your/project
+$ composer require compayer/compayer-lib-php
+```
+
+After installing, you need to require Composer's autoloader:
+
+```php
+require '/path/to/vendor/autoload.php';
+```
 
 ## Usage
 
-Example to use:
+To use analytics you need to send 2 events: 
+- The `start` event when a user initiates payment. The `start` event is optional, but we strongly recommend using it to track the entire payment chain. 
+- One of events `success`, `fail` or `refund` after the payment system responds about the result of the operation.
+
+The event tries automatically determine the user IP address and address of the payment initiation page based on the data from the server request. 
+If the user’s request is not available to the script, you can set the payment initiation page or user IP address by yourself (this is necessary for the geolocation filters to work correctly).
+
+To send a `start` event, use the following example:
 
 ```php
-use Paysuper\AnalyticsLib;
+use Compayer\SDK\Client;
+use Compayer\SDK\Event;
 
-$accounts = new stdClass();
-$accounts->yourproject = "131312323213132410";
+const DATA_SOURCE = 'data_source_id';
+const SECRET_KEY = 'secret_key';
 
-$data = array(
-	"paymentSystem" => "Yandex.Money",  // 'Paysuper', 'Yandex.Money', 'Xsolla'
-	"paymentMethod" => "Bank cards", // 'Bank cards', 'Bank Transfer', 'Cash Payments', 'Cryptocurrency', 'E-payments', 'Mobile Payments', 'Prepaid Cards'
-	"paymentSubMethod" => "Visa",
-	"paymentAmount" => 75,
-	"paymentCost" => 2.63,
-	"paymentCurrency" => "RUB",
-	"vatAmount" => 0,
-	"vatCurrency" => "",
-	"feesAmount" => 2.63,
-	"feesCurrency" => "RUB",
-	"payoutAmount" => 72.37,
-	"payoutCurrency" => "RUB",
-	"payoutExchangeRate" => 0,
-	"userLang" => "RU",
-	"userPhones" => array("79111236547"),
-	"userEmails" => array("test@test.com"),
-	"userAccounts" => $accounts,
-	"userCountry" => "RU",
-	"merchantTransactionId" => "some id",
-);
+// Initialization of the client for sending events.
+// Available configuration parameters can be found in the class constants Client::CONFIG_*.
+$client = Client::create([
+    Client::CONFIG_DATA_SOURCE => DATA_SOURCE,
+    Client::CONFIG_SECRET_KEY => SECRET_KEY,
+]);
 
-if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
-	define('PAYSUPER_ANALYTICS_IS_PROD', true);
-}
+// Create an instance of the Event class and set the maximum possible properties about the user and payment.
+// All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
+// to identify the user who made the payment.
+$event = (new Event())
+    ->setMerchantTransactionId('12345')
+    ->setPaymentAmount(250.50)
+    ->setPaymentCurrency('RUB')
+    ->setUserLang('RUS')
+    ->setUserEmails(['customer@compayer.com'])
+    ->setUserAccounts(['54321'])
+    ->setExtra(['my_property' => 'value']);
 
-if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
-	define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
-}
+// You can also create an object with an event from an array, 
+// where the names of the keys of the array match the names of the Event properties.
+$event = Event::fromArray([
+    'merchantTransactionId' => '12345',
+    'paymentAmount' => 250.50,
+    'paymentCurrency' => 'RUB',
+    'userLang' => 'RUS',
+    'userEmails' => ['customer@compayer.com'],
+    'userAccounts' => ['54321'],
+    'extra' => ['my_property' => 'value'],
+]);
 
-$event = AnalyticsLib::EVENT_START; // use correct event name here
-
-AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
+// Send the generated event and get the generated transaction identifier.
+// Use it to send "success", "fail" or "refund" events to chain events.
+// Transaction identifier is UUID and is a string like 3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb.
+$transactionId = $client->pushStartEvent($event);
 ```
 
-Example to use with the Helper:
+After the payment system has received a response about the payment result (`success`, `failure` or `refund`), it is necessary to send another event.
+Form the event as described in the start event. Enrich the event with the data that you received after payment.
+If at the start step you received a transaction ID, set it to link the entire payment chain.
+
+For events of "success", "fail" and "refund", a payment system response is required in its original form.
+The response should be written as a string with the key "response" in the property "extra".
+
+For example, if the answer received in the jSON format, then use the construct: `setPaymentSystemResponse(json_encode($jsonPaymentSystemResponse))`.
 
 ```php
-use Paysuper\AnalyticsConformDataYamoney;
-use Paysuper\AnalyticsLib;
+use Compayer\SDK\Client;
+use Compayer\SDK\Event;
 
-$request = array(); //  response from payment system 
-$data = AnalyticsConformDataYamoney::GetData($request);
+const DATA_SOURCE = 'data_source_id';
+const SECRET_KEY = 'secret_key';
 
-if ($data !== null) {
-	$data['userAccounts']->yourproject = "131312323213132410";
+// Transaction ID received on start event
+$transactionId = '3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb';
 
-	if (!defined('PAYSUPER_ANALYTICS_IS_PROD')) {
-		define('PAYSUPER_ANALYTICS_IS_PROD', true);
-	}
-	
-    if (!defined('PAYSUPER_ANALYTICS_DATA_SOURCE')) {
-		define('PAYSUPER_ANALYTICS_DATA_SOURCE', 'yourproject');
-	}
+// Initialization of the client for sending events.
+// Available configuration parameters can be found in the class constants Client::CONFIG_*.
+$client = Client::create([
+    Client::CONFIG_DATA_SOURCE => DATA_SOURCE,
+    Client::CONFIG_SECRET_KEY => SECRET_KEY,
+]);
 
-	$event = AnalyticsLib::EVENT_START; // use correct event name here
+// Create an instance of the Event class and set the maximum possible properties about the user and payment
+// All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
+// to identify the user who made the payment. If you have a transaction ID for the start event, specify it.
+$event = (new Event())
+    ->setTransactionId($transactionId)
+    ->setMerchantTransactionId('12345')
+    ->setPaymentAmount(250.50)
+    ->setPaymentCurrency('RUB')
+    ->setPayoutAmount(3.87)
+    ->setPayoutCurrency('USD')
+    ->setUserEmails(['customer@compayer.com'])
+    ->setUserAccounts(['54321'])
+    ->setExtra(['my_property' => 'value'])
+    ->setPaymentSystemResponse('Payment system response as a string');
 
-	AnalyticsLib::Push(PAYSUPER_ANALYTICS_IS_PROD, PAYSUPER_ANALYTICS_DATA_SOURCE, $event, $data);
-}
+// Send the generated event
+// Or use $client->pushFailEvent($event) in case of payment failure
+// Or use $client->pushRefundEvent($event) in case of payment refund
+$client->pushSuccessEvent($event);
 ```
 
 ## License
