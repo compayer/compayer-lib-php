@@ -19,8 +19,8 @@ Compayer PHP SDK library is designed to push stat messages to PaySuper Analytics
 |**Storing user accounts**|[Compayer Accounts](https://github.com/compayer/compayer-accounts) is a microservice that stores the Compayer user accounts and performs a user registration and authentication.|
 
 ## Features
-- Creates and send the Event of start, success, fail or refund to the Compare analytics.
-- Help to convert response message from Yandex.Money, Xsolla and Paysuper to the Event message. 
+- Creates and sends events of start, successful, failure or refund payments to the Compare analytics.
+- Helps to convert a response message from payments systems Yandex.Money, Xsolla and PaySuper to the Event message. 
 
 ---
 
@@ -32,7 +32,7 @@ Compayer PHP SDK library is designed to push stat messages to PaySuper Analytics
 - [Usage](#usage)
 
 ## Requirements
-- PHP >=5.5
+- PHP >= 5.5
 - Required PHP extensions: *json*
 
 ## Getting Started
