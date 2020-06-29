@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/compayer/compayer-lib-php.png?branch=master)](https://travis-ci.org/compayer/compayer-lib-php)
 [![Code Coverage](https://codecov.io/gh/compayer/compayer-lib-php/branch/master/graph/badge.svg)](https://codecov.io/gh/compayer/compayer-lib-php)
 [![Downloads](https://poser.pugx.org/compayer/compayer-lib-php/d/total.png)](https://packagist.org/packages/compayer/compayer-lib-php)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/compayer/compayer-lib-php/master/LICENSE)
 
 Compayer is a stat data preprocessor and web analytics service that tracks customer events in payment forms for financial and marketing reports.
 
@@ -159,4 +159,4 @@ $client->pushSuccessEvent($event);
 
 ## License
 
-The project is available as open source under the terms of the [Apache-2.0 License](https://opensource.org/licenses/Apache-2.0).
+The project is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
