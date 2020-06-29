@@ -2,8 +2,11 @@
 
 namespace Compayer\SDK\Tests;
 
+use Compayer\SDK\Config;
+use Compayer\SDK\Exceptions\UnableToFindPaymentSystemResponse;
 use Compayer\SDK\Exceptions\UnableToFindUserIdentity;
 use Compayer\SDK\Exceptions\UnableToSendEvent;
+use Compayer\SDK\Transport\Log;
 use PHPUnit\Framework\TestCase;
 use Compayer\SDK\Client;
 use Compayer\SDK\Event;
@@ -11,36 +14,16 @@ use Mockery;
 
 class ClientTest extends TestCase
 {
-    public function testCreateWithoutRequiredParams()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        Client::create([]);
-    }
-
-    public function testCreateWithRequiredParams()
-    {
-        $this->assertInstanceOf("\Compayer\SDK\Client", $this->getClient());
-    }
-
-    public function testCreateWithAllParams()
-    {
-        $client = Client::create([
-            Client::CONFIG_DATA_SOURCE => "data_source",
-            Client::CONFIG_SECRET_KEY => "secret_key",
-            Client::CONFIG_SANDBOX_MODE => true,
-            Client::CONFIG_EVENT_API_URL => 'http://compayer.com',
-        ]);
-        $this->assertInstanceOf("\Compayer\SDK\Client", $client);
-    }
-
     public function testUnableToSendEvent()
     {
         $this->expectException(UnableToSendEvent::class);
-        $client = $this->getClient();
 
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
         $transport->shouldReceive('send')->andThrow(new UnableToSendEvent);
-        $client->setTransport($transport);
+
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport);
+        $client = new Client($config);
 
         $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
     }
@@ -48,119 +31,142 @@ class ClientTest extends TestCase
     public function testUnableToFindUserIdentity()
     {
         $this->expectException(UnableToFindUserIdentity::class);
+
         $client = $this->getClient();
         $client->pushStartEvent(Event::fromArray([]));
     }
 
     public function testPushStartEvent()
     {
-        $client = $this->getClient();
-
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn([true]);
-        $client->setTransport($transport);
+        $transport->shouldReceive('send')->andReturn(new Log());
 
-        $transactionId = $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
-        $this->assertRegExp("/([a-z0-9]{8})-([a-z0-9]{4})-([a-z0-9]{4})-([a-z0-9]{4})-([a-z0-9]{12})/", $transactionId);
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport);
+        $client = new Client($config);
+
+        $response = $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
+        $this->assertInstanceOf('Compayer\SDK\Response', $response);
+        $this->assertRegExp("/([a-z0-9]{8})-([a-z0-9]{4})-([a-z0-9]{4})-([a-z0-9]{4})-([a-z0-9]{12})/", $response->getTransactionId());
     }
 
     public function testPushSuccessEventWithoutExtraResponse()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(UnableToFindPaymentSystemResponse::class);
+
         $client = $this->getClient();
         $client->pushSuccessEvent(Event::fromArray([]));
     }
 
     public function testPushSuccessEventWithResponse()
     {
-        $client = $this->getClient();
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn([true]);
-        $client->setTransport($transport);
+        $transport->shouldReceive('send')->andReturn(new Log());
 
-        $result = $client->pushSuccessEvent(Event::fromArray([
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport);
+        $client = new Client($config);
+
+        $response = $client->pushSuccessEvent(Event::fromArray([
             'userAccounts' => ['123'],
             'extra' => [Event::EXTRA_RESPONSE => "response"],
         ]));
-        $this->assertTrue($result);
+        $this->assertInstanceOf('Compayer\SDK\Response', $response);
     }
 
     public function testPushFailEventWithoutResponse()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(UnableToFindPaymentSystemResponse::class);
+
         $client = $this->getClient();
         $client->pushFailEvent(Event::fromArray([]));
     }
 
     public function testPushFailEventWithResponse()
     {
-        $client = $this->getClient();
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn([true]);
-        $client->setTransport($transport);
+        $transport->shouldReceive('send')->andReturn(new Log());
 
-        $result = $client->pushFailEvent(Event::fromArray([
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport);
+        $client = new Client($config);
+
+        $response = $client->pushFailEvent(Event::fromArray([
             'userAccounts' => ['123'],
             'extra' => [Event::EXTRA_RESPONSE => "response"],
         ]));
-        $this->assertTrue($result);
+        $this->assertInstanceOf('Compayer\SDK\Response', $response);
     }
 
     public function testPushRefundEventWithoutResponse()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(UnableToFindPaymentSystemResponse::class);
+
         $client = $this->getClient();
         $client->pushRefundEvent(Event::fromArray([]));
     }
 
     public function testRefundFailEventWithResponse()
     {
-        $client = $this->getClient();
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
-        $transport->shouldReceive('send')->andReturn([true]);
-        $client->setTransport($transport);
+        $transport->shouldReceive('send')->andReturn(new Log());
 
-        $result = $client->pushRefundEvent(Event::fromArray([
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport);
+        $client = new Client($config);
+
+        $response = $client->pushRefundEvent(Event::fromArray([
             'userAccounts' => ['123'],
             'extra' => [Event::EXTRA_RESPONSE => "response"],
         ]));
-        $this->assertTrue($result);
+        $this->assertInstanceOf('Compayer\SDK\Response', $response);
     }
 
     public function testSetTestEventForSandboxMode()
     {
-        $client = Client::create([
-            Client::CONFIG_DATA_SOURCE => "data_source",
-            Client::CONFIG_SECRET_KEY => "secret_key",
-            Client::CONFIG_SANDBOX_MODE => true,
-        ]);
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
         $transport->shouldReceive('send')
-            ->with('POST', 'https://compayer.pay.super.com/push/v2/data_source', Mockery::any(), Mockery::on(function ($argument) {
+            ->with('POST', 'https://compayer.pay.super.com/push/v2/clientId', Mockery::any(), Mockery::on(function ($argument) {
                 return (bool)preg_match('/"isTest":true/', $argument);
             }))
-            ->andReturn([true]);
-        $client->setTransport($transport);
+            ->andReturn(new Log());
+
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport)->setSandboxMode(true);
+        $client = new Client($config);
+
         $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
     }
 
     public function testSetEventApiUrl()
     {
-        $client = Client::create([
-            Client::CONFIG_DATA_SOURCE => "data_source",
-            Client::CONFIG_SECRET_KEY => "secret_key",
-            Client::CONFIG_EVENT_API_URL => 'http://compayer.com',
-        ]);
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
         $transport->shouldReceive('send')
-            ->with('POST', 'http://compayer.com/push/v2/data_source', Mockery::any(), Mockery::any())
-            ->andReturn([true]);
-        $client->setTransport($transport);
+            ->with('POST', 'http://compayer.com/push/v2/clientId', Mockery::any(), Mockery::any())
+            ->andReturn(new Log());
+
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport)->setEventApiUrl('http://compayer.com');
+        $client = new Client($config);
+
         $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
+    }
+
+    public function testSetDebugMode()
+    {
+        $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
+        $transport->shouldReceive('send')->andReturn(new Log());
+
+        $config = new Config('clientId', 'secretKey');
+        $config->setTransport($transport)->setDebugMode(true);
+        $client = new Client($config);
+
+        $response = $client->pushStartEvent(Event::fromArray(['userAccounts' => ['123']]));
+        $this->assertNotEmpty($response->getLog());
     }
 
     private function getClient()
     {
-        return Client::create([Client::CONFIG_DATA_SOURCE => "data_source", Client::CONFIG_SECRET_KEY => "secret_key"]);
+        return new Client(new Config('clientId', 'secretKey'));
     }
 }

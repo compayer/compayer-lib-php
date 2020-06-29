@@ -2,6 +2,7 @@
 
 namespace Compayer\SDK;
 
+use Compayer\SDK\Exceptions\UnableToFindPaymentSystemResponse;
 use Compayer\SDK\Exceptions\UnableToFindUserIdentity;
 use Compayer\SDK\Exceptions\UnableToSendEvent;
 use Compayer\SDK\Transport\Guzzle;
@@ -11,6 +12,8 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * Class Client
+ *
+ * Client validate and send the Event to API
  *
  * @package Compayer\SDK
  * @author Vadim Sabirov (vadim.sabirov@protocol.one)
@@ -24,79 +27,18 @@ class Client
     /** Hash algorithm for creating bearer token */
     const TOKEN_HASH_ALG = 'sha256';
 
-    /** Initialize option of data source ID for SDK */
-    const CONFIG_DATA_SOURCE = 'data_source';
+    /** @var Config Configuration options */
+    private $config;
 
-    /** Initialize option of API secret key for SDK */
-    const CONFIG_SECRET_KEY = 'secret_key';
-
-    /** Initialize option of event API url for SDK */
-    const CONFIG_EVENT_API_URL = 'event_api_url';
-
-    /** Initialize option of sandbox mode for SDK */
-    const CONFIG_SANDBOX_MODE = 'sandbox_mode';
-
-    /** @var string Data source identifier */
-    private $dataSourceId;
-
-    /** @var string Secret key for API */
-    private $secretKey;
-
-    /** @var string URL of endpoint to save the Event log */
-    private $eventApiUrl;
-
-    /** @var bool Test mode */
-    private $sandboxMode = false;
-
-    /** @var TransportInterface */
-    private $transport;
-
-    private function __construct()
+    public function __construct(Config $config)
     {
-        $this->eventApiUrl = 'https://compayer.pay.super.com';
-        $this->transport = new Guzzle();
-    }
-
-    /**
-     * Create SDK client with config
-     * @param array $config Configuration params (use the CONFIG_* constants for array keys)
-     * @return self
-     */
-    public static function create(array $config)
-    {
-        $required = [self::CONFIG_DATA_SOURCE, self::CONFIG_SECRET_KEY];
-
-        if ($missing = array_diff($required, array_keys($config))) {
-            throw new \InvalidArgumentException('Missing the required params: ' . implode(', ', $missing));
-        }
-
-        $client = new self();
-        $client->dataSourceId = $config[self::CONFIG_DATA_SOURCE];
-        $client->secretKey = $config[self::CONFIG_SECRET_KEY];
-
-        if (isset($config[self::CONFIG_EVENT_API_URL])) {
-            $client->eventApiUrl = $config[self::CONFIG_EVENT_API_URL];
-        }
-
-        if (isset($config[self::CONFIG_SANDBOX_MODE])) {
-            $client->sandboxMode = $config[self::CONFIG_SANDBOX_MODE];
-        }
-
-        return $client;
-    }
-
-    /**
-     * Set http transport for requests
-     * @param TransportInterface $transport
-     */
-    public function setTransport(TransportInterface $transport) {
-        $this->transport = $transport;
+        $this->config = $config;
     }
 
     /**
      * Send start Event
      * @param Event $event
-     * @return string Event transaction identifier
+     * @return Response Event transaction identifier
      * @throws InvalidArgumentException
      * @throws UnableToSendEvent
      * @throws UnableToFindUserIdentity
@@ -105,24 +47,20 @@ class Client
     {
         $event->setTransactionId(Uuid::uuid4()->toString());
         $event->setEvent(Event::EVENT_START);
-        $this->pushEvent($event);
 
-        return $event->getTransactionId();
+        return $this->pushEvent($event);
     }
 
     /**
      * Send success Event
      * @param Event $event
-     * @return bool
+     * @return Response
+     * @throws UnableToFindPaymentSystemResponse
+     * @throws UnableToFindUserIdentity
      * @throws UnableToSendEvent
      */
     public function pushSuccessEvent(Event $event)
     {
-        $extra = $event->getExtra();
-        if (!$extra || !array_key_exists(Event::EXTRA_RESPONSE, $extra)) {
-            throw new InvalidArgumentException('Payment system response message cannot be empty');
-        }
-
         $event->setEvent(Event::EVENT_SUCCESS);
         return $this->pushEvent($event);
     }
@@ -130,17 +68,13 @@ class Client
     /**
      * Send fail Event
      * @param Event $event
-     * @return bool
-     * @throws InvalidArgumentException
+     * @return Response
+     * @throws UnableToFindPaymentSystemResponse
+     * @throws UnableToFindUserIdentity
      * @throws UnableToSendEvent
      */
     public function pushFailEvent(Event $event)
     {
-        $extra = $event->getExtra();
-        if (!$extra || !array_key_exists(Event::EXTRA_RESPONSE, $extra)) {
-            throw new InvalidArgumentException('Payment system response message cannot be empty');
-        }
-
         $event->setEvent(Event::EVENT_FAIL);
         return $this->pushEvent($event);
     }
@@ -148,35 +82,35 @@ class Client
     /**
      * Send refund Event
      * @param Event $event
-     * @return bool
-     * @throws InvalidArgumentException
+     * @return Response
+     * @throws UnableToFindPaymentSystemResponse
+     * @throws UnableToFindUserIdentity
      * @throws UnableToSendEvent
      */
     public function pushRefundEvent(Event $event)
     {
-        $extra = $event->getExtra();
-        if (!$extra || !array_key_exists(Event::EXTRA_RESPONSE, $extra)) {
-            throw new InvalidArgumentException('Payment system response message cannot be empty');
-        }
-
         $event->setEvent(Event::EVENT_REFUND);
         return $this->pushEvent($event);
     }
 
     /**
      * @param Event $event
-     * @return bool
+     * @return Response
+     * @throws UnableToFindPaymentSystemResponse
+     * @throws UnableToFindUserIdentity
      * @throws UnableToSendEvent
      */
     private function pushEvent(Event $event)
     {
+        $this->checkPaymentSystemResponse($event);
         $this->checkEventUserIdentity($event);
 
-        $event->setIsTest($this->sandboxMode);
+        $event->setDataSource($this->config->getClientId());
+        $event->setIsTest($this->config->isSandboxMode());
         $data = json_encode($event->toArray());
 
-        $token = hash(self::TOKEN_HASH_ALG, $data . $this->secretKey);
-        $url = sprintf('%s/push/v%d/%s', $this->eventApiUrl, self::VERSION, $this->dataSourceId);
+        $token = hash(self::TOKEN_HASH_ALG, $data . $this->config->getSecretKey());
+        $url = sprintf('%s/push/v%d/%s', $this->config->getEventApiUrl(), self::VERSION, $this->config->getClientId());
 
         $headers = [
             'Authorization' => "Bearer {$token}",
@@ -186,12 +120,35 @@ class Client
             'User-Agent' => $this->getVersion(),
         ];
 
-        $this->transport->send('POST', $url, $headers, $data);
+        $log = [];
+        $executionStartTime = microtime(true);
 
-        return true;
+        $response = $this->config->getTransport()->send('POST', $url, $headers, $data);
+
+        if ($this->config->isDebugMode()) {
+            $log = [
+                'event' => $event,
+                'transport' => $response->toArray(),
+                'execution_time' => microtime(true) - $executionStartTime];
+        }
+
+        return new Response($event->getTransactionId(), $log);
     }
 
-    private function checkEventUserIdentity(Event $event) {
+    private function checkPaymentSystemResponse(Event $event)
+    {
+        if ($event->getEvent() === Event::EVENT_START) {
+            return;
+        }
+
+        $extra = $event->getExtra();
+        if (!$extra || !array_key_exists(Event::EXTRA_RESPONSE, $extra)) {
+            throw new UnableToFindPaymentSystemResponse('Payment system response message cannot be empty');
+        }
+    }
+
+    private function checkEventUserIdentity(Event $event)
+    {
         if (!$event->getUserEmails() && !$event->getUserPhones() && !$event->getUserAccounts()) {
             throw new UnableToFindUserIdentity('User identity not found');
         }
