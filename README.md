@@ -59,7 +59,7 @@ require '/path/to/vendor/autoload.php';
 ## Usage
 
 To use analytics you need to send 2 events: 
-- The `start` event when a user initiates payment. The `start` event is optional, but we strongly recommend using it to track the entire payment chain. 
+- The `start` event when a user initiates a payment. The `start` event is optional, but we strongly recommend using it to track the entire payment chain. 
 - One of events `success`, `fail` or `refund` after the payment system responds about the result of the operation.
 
 The event tries automatically determine the user IP address and address of the payment initiation page based on the data from the server request. 
@@ -111,14 +111,13 @@ $event = Event::fromArray([
 $transactionId = $client->pushStartEvent($event);
 ```
 
-After the payment system has received a response about the payment result (`success`, `failure` or `refund`), it is necessary to send another event.
-Form the event as described in the start event. Enrich the event with the data that you received after payment.
-If at the start step you received a transaction ID, set it to link the entire payment chain.
+After a payment system has received a response about a payment result (`success`, `failure` or `refund`), you need to send an event with the data that you received after the payment. 
+You can form the response event as described in the `start` event example above. If you received a transaction ID at the start step, set it to link the entire payment chain.
 
-For events of "success", "fail" and "refund", a payment system response is required in its original form.
-The response should be written as a string with the key "response" in the property "extra".
+For `success`, `failure` or `refund` events a payment system response is required in its original form.
+The response should be written as a string with the key "response" in the property `extra`.
 
-For example, if the answer received in the jSON format, then use the construct: `setPaymentSystemResponse(json_encode($jsonPaymentSystemResponse))`.
+For example, if the answer received in the jSON format then use the construct: `setPaymentSystemResponse(json_encode($jsonPaymentSystemResponse))`.
 
 ```php
 use Compayer\SDK\Client;
