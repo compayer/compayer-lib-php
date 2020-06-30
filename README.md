@@ -1,4 +1,4 @@
-# Compayer SDK for PHP
+# Compayer PHP SDK
 
 [![Latest Stable Version](https://poser.pugx.org/compayer/compayer-lib-php/v/stable.png)](https://packagist.org/packages/compayer/compayer-lib-php)
 [![Build Status](https://travis-ci.org/compayer/compayer-lib-php.png?branch=master)](https://travis-ci.org/compayer/compayer-lib-php)
@@ -6,53 +6,58 @@
 [![Downloads](https://poser.pugx.org/compayer/compayer-lib-php/d/total.png)](https://packagist.org/packages/compayer/compayer-lib-php)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/compayer/compayer-lib-php/master/LICENSE)
 
-An official PHP SDK library for push stat message to Compayer.
+Compayer is a stat data preprocessor and web analytics service that tracks customer events in payment forms for financial and marketing reports.
+
+Compayer PHP SDK library is designed to push stat messages to the Compayer analytics from the php-based projects.
 
 ## Features
-* Creates and send the Event of start, success, fail or refund to the Compare analytics.
-* Help to convert response message from Yandex.Money, Xsolla and Paysuper to the Event message. 
+- Creates and sends the Events of start, success, failure or refund payments to the Compare analytics.
+- Helps to convert a response message from payment systems Yandex.Money, Xsolla and PaySuper to the Event message. 
+
+---
+
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
+- [Usage](#usage)
 
 ## Requirements
-* PHP >=5.5
-* The following PHP extensions required:
-  * json
+- PHP >= 5.5
+- Required PHP extensions: *json*
 
 ## Getting Started
 
-Register your account in [Compayer](https://compayer.com) analytics and go onboarding.
-At the end of onboarding, the data-source will be automatically created, which will indicate the client ID and the secret key.
-In order to use the PHP SDK Library you'll need:
-* CLIENT ID
-* SECRET KEY
+Register your account in [Compayer](https://compayer.com) analytics to get:
+- CLIENT ID (the unique identifier for your client)
+- SECRET KEY (the secret API key for your client)
 
 ## Installation
 
-### Installing via Composer
-
-The recommended way to install Compayer SDK for PHP is through [Composer](http://getcomposer.org).
+We recommend installing Compayer PHP SDK using [Composer](http://getcomposer.org).
 
 ``` bash
 $ cd /path/to/your/project
 $ composer require compayer/compayer-lib-php
 ```
 
-After installing, you need to require Composer's autoloader:
+After installing, you need to require the Composer's autoloader:
 
 ```php
 require '/path/to/vendor/autoload.php';
 ```
 
-## Quick Examples
+## Usage
 
-For the analytics to work better, you need to send 2 events: "start" when the user initiates payments and "success", 
-"fail" or "refund" (after the payment system responds about the result of the operation).
-The "start" event is optional, but we strongly recommend using it to track the entire payment chain. 
+To use analytics you need to send 2 events: 
+- The Event `start` when a user initiates a payment. The `start` event is optional, but we strongly recommend using it to track the entire payment chain. 
+- One of the Events `success`, `fail` or `refund` after the payment system responds about the result of the operation.
 
-The event tries to determine the ip address of the user and the address of the payment initiation page automatically, 
-based on data from the server request. If the user’s request is not available to the script, you can set the payment 
-page or the user’s IP address yourself (this is necessary for the geolocation filters to work correctly).
+The Event tries automatically determine the user IP address and address of the payment initiation page based on the data from the server request. 
+If the user’s request is not available to the script, you can set the payment initiation page or user IP address by yourself (this is necessary for the geolocation filters to work correctly).
 
-To send a start event, use the following example:
+To send an Event `start`, use the following example:
 
 ```php
 use Compayer\SDK\Client;
@@ -63,11 +68,11 @@ use Compayer\SDK\Exceptions\SdkException;
 const CLIENT_ID = 'client_id';
 const SECRET_KEY = 'secret_key';
 
-// Create and configure a configuration object (e.g. with debug mode).
+// Create and configure a configuration object (including debug mode).
 $config = new Config(CLIENT_ID, SECRET_KEY);
 $config->setDebugMode(true);
 
-// Create SDK client for sending events.
+// Create a SDK client for sending events.
 $client = new Client($config);
 
 // Create an instance of the Event class and set the maximum possible properties about the user and payment.
@@ -109,13 +114,13 @@ $transactionId = $response->getTransactionId();
 print_r($response->getLog());
 ```
 
-After the payment system has received a response about the payment result (success, failure or refund), it is necessary to send another event.
-Form the event as described in the start event. Enrich the event with the data that you received after payment.
-If at the start step you received a transaction ID, set it to link the entire payment chain.
+After a payment system has received a response about a payment result (`success`, `failure` or `refund`), you need to send an event with the data that you received after the payment. 
+You can form the response event as described in the `start` event example above. If you received a transaction ID at the start step, set it to link the entire payment chain.
 
-For events of "success", "fail" and "refund", a payment system response is required in its original form.
-The response should be written as a string with the key "response" in the property "extra".
-For example, if the answer came in the jSON format, then use the construct: `setPaymentSystemResponse(json_encode($jsonPaymentSystemResponse))`.
+For `success`, `failure` or `refund` events a payment system response is required in its original form.
+The response should be written as a string with the key "response" in the property `extra`.
+
+For example, if the answer received in the JSON format then use the construct: `setPaymentSystemResponse(json_encode($jsonPaymentSystemResponse))`.
 
 ```php
 use Compayer\SDK\Client;
@@ -160,3 +165,7 @@ try {
     print_r($e->getMessage());
 }
 ```
+
+## License
+
+The project is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
