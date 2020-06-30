@@ -72,12 +72,12 @@ const SECRET_KEY = 'secret_key';
 $config = new Config(CLIENT_ID, SECRET_KEY);
 $config->setDebugMode(true);
 
-// Create a SDK client for sending events.
+// Create an SDK client for sending events.
 $client = new Client($config);
 
-// Create an instance of the Event class and set the maximum possible properties about the user and payment.
-// All fields are optional, but you must fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
-// to identify the user who made the payment.
+// Create an instance of the Event class and set the maximum possible properties about a user and payment.
+// All fields are optional, but it's important to fill out one of the fields: "userEmails", "userPhones" or "userAccounts" 
+// to identify the user made the payment.
 $event = (new Event())
     ->setMerchantTransactionId('12345')
     ->setPaymentAmount(250.50)
@@ -88,7 +88,7 @@ $event = (new Event())
     ->setExtra(['my_property' => 'value']);
 
 // You can also create an object with an event from an array, 
-// where the names of the keys of the array match the names of the Event properties.
+// where names of the keys of the array match names of the Event properties.
 $event = Event::fromArray([
     'merchantTransactionId' => '12345',
     'paymentAmount' => 250.50,
@@ -100,22 +100,22 @@ $event = Event::fromArray([
 ]);
 
 try {
-    // Send the generated event and get the response message with transaction identifier and log.
+    // Send the generated event and get the response message with a transaction identifier and log.
     $response = $client->pushStartEvent($event);
 } catch (SdkException $e) {
     print_r($e->getMessage());
 }
 
-// Use it to send "success", "fail" or "refund" events to chain events.
-// Transaction identifier is UUID and is a string like 3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb.
+// Use it to send "success", "fail" or "refund" events and to chain events.
+// The transaction identifier is UUID string like 3677eb06-1a9a-4b6c-9d6a-1799cae1b6bb.
 $transactionId = $response->getTransactionId();
 
 // Show logs with the debug mode configuration.
 print_r($response->getLog());
 ```
 
-After a payment system has received a response about a payment result (`success`, `failure` or `refund`), you need to send an event with the data that you received after the payment. 
-You can form the response event as described in the `start` event example above. If you received a transaction ID at the start step, set it to link the entire payment chain.
+After a payment system has received a response about a payment result (`success`, `failure` or `refund`), you need to send an Event with the data that you received after the payment. 
+You can form the response event as described in the Event `start`. If you received a transaction ID at the start step, set it to link the entire payment chain.
 
 For `success`, `failure` or `refund` events a payment system response is required in its original form.
 The response should be written as a string with the key "response" in the property `extra`.
