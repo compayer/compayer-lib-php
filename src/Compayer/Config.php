@@ -36,7 +36,7 @@ class Config
     {
         $this->clientId = $clientId;
         $this->secretKey = $secretKey;
-        $this->eventApiUrl = 'https://compayer.pay.super.com';
+        $this->eventApiUrl = 'https://data.compayer.com';
         $this->transport = new Guzzle();
         $this->sandboxMode = false;
         $this->debugMode = false;
