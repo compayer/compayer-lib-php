@@ -14,7 +14,7 @@ class ConfigTest extends TestCase
         $config = new Config('clientId', 'secretKey');
         $this->assertEquals('clientId', $config->getClientId());
         $this->assertEquals('secretKey', $config->getSecretKey());
-        $this->assertEquals('https://compayer.pay.super.com', $config->getEventApiUrl());
+        $this->assertEquals('https://receiver.compayer.com', $config->getEventApiUrl());
         $this->assertEquals(false, $config->isSandboxMode());
         $this->assertEquals(false, $config->isDebugMode());
         $this->assertInstanceOf('Compayer\SDK\Transport\Guzzle', $config->getTransport());

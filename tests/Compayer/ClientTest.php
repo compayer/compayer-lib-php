@@ -126,7 +126,7 @@ class ClientTest extends TestCase
     {
         $transport = Mockery::mock('Compayer\SDK\Transport\TransportInterface');
         $transport->shouldReceive('send')
-            ->with('POST', 'https://compayer.pay.super.com/push/v2/clientId', Mockery::any(), Mockery::on(function ($argument) {
+            ->with('POST', 'https://receiver.compayer.com/push/v2/clientId', Mockery::any(), Mockery::on(function ($argument) {
                 return (bool)preg_match('/"isTest":true/', $argument);
             }))
             ->andReturn(new Log());
